@@ -106,7 +106,7 @@ function App(): React.JSX.Element {
                 padding: '6px 12px',
                 background: '#181818',
                 borderBottom: '1px solid #333',
-                fontFamily: 'system-ui, sans-serif',
+                fontFamily: "'JetBrainsMono NFM', ui-monospace, Menlo, monospace",
                 color: '#aaa',
                 fontSize: 13,
                 flexShrink: 0

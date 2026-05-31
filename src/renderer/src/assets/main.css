@@ -1,9 +1,30 @@
+@font-face {
+  font-family: 'JetBrainsMono NFM';
+  font-weight: 400;
+  font-style: normal;
+  src: url('./fonts/JetBrainsMonoNerdFontMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'JetBrainsMono NFM';
+  font-weight: 700;
+  font-style: normal;
+  src: url('./fonts/JetBrainsMonoNerdFontMono-Bold.ttf') format('truetype');
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 :root {
@@ -31,4 +52,5 @@ body,
   height: 100%;
   overflow: hidden;
   background: var(--bg);
+  font-family: 'JetBrainsMono NFM', ui-monospace, Menlo, monospace;
 }

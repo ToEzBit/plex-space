@@ -25,7 +25,7 @@ const styles = {
     height: '100vh',
     background: 'var(--bg)',
     color: 'var(--text)',
-    fontFamily: 'system-ui, sans-serif',
+    fontFamily: "'JetBrainsMono NFM', ui-monospace, Menlo, monospace",
     display: 'flex',
     flexDirection: 'column' as const
   },

@@ -16,7 +16,11 @@ function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
   useEffect(() => {
     if (!containerRef.current) return
 
-    const term = new Terminal({ cursorBlink: true, fontSize: 14 })
+    const term = new Terminal({
+      cursorBlink: true,
+      fontSize: 14,
+      fontFamily: "'JetBrainsMono NFM', ui-monospace, Menlo, monospace"
+    })
     const fitAddon = new FitAddon()
     termRef.current = term
     fitAddonRef.current = fitAddon
@@ -24,6 +28,13 @@ function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
     term.loadAddon(fitAddon)
     term.open(containerRef.current)
     fitAddon.fit()
+
+    document.fonts.ready.then(() => {
+      if (fitAddonRef.current && termRef.current) {
+        fitAddonRef.current.fit()
+        window.terminalAPI.resize(terminalId, termRef.current.cols, termRef.current.rows)
+      }
+    })
 
     const removeDataListener = window.terminalAPI.onData((id, data) => {
       if (id === terminalId) term.write(data)

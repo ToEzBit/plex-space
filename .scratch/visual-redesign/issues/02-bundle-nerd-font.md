@@ -1,6 +1,6 @@
 # Bundle JetBrainsMono Nerd Font
 
-Status: ready-for-agent
+Status: done
 
 ## What to build
 
@@ -16,10 +16,10 @@ ships one fixed look).
 
 ## Acceptance criteria
 
-- [ ] JetBrainsMono Nerd Font is bundled as a local asset (no network/CDN font load)
-- [ ] App chrome renders in the bundled font
-- [ ] Terminals render in the bundled font and Nerd glyphs (powerline / git icons) display correctly
-- [ ] The font stack degrades to a system monospace if the asset is unavailable
+- [x] JetBrainsMono Nerd Font is bundled as a local asset (no network/CDN font load)
+- [x] App chrome renders in the bundled font
+- [x] Terminals render in the bundled font and Nerd glyphs (powerline / git icons) display correctly
+- [x] The font stack degrades to a system monospace if the asset is unavailable
 
 ## Blocked by
 
