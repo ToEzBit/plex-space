@@ -44,8 +44,7 @@ const styles = {
     borderRadius: 8,
     padding: '32px 40px',
     width: 460,
-    color: '#e0e0e0',
-    fontFamily: "'JetBrainsMono NFM', ui-monospace, Menlo, monospace"
+    color: '#e0e0e0'
   } as React.CSSProperties,
   title: { fontSize: 18, fontWeight: 600, marginBottom: 4 } as React.CSSProperties,
   stepLabel: { fontSize: 13, color: '#888', marginBottom: 24 } as React.CSSProperties,

@@ -25,15 +25,15 @@ function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
     termRef.current = term
     fitAddonRef.current = fitAddon
 
+    let mounted = true
     term.loadAddon(fitAddon)
     term.open(containerRef.current)
     fitAddon.fit()
 
     document.fonts.ready.then(() => {
-      if (fitAddonRef.current && termRef.current) {
-        fitAddonRef.current.fit()
-        window.terminalAPI.resize(terminalId, termRef.current.cols, termRef.current.rows)
-      }
+      if (!mounted) return
+      fitAddon.fit()
+      window.terminalAPI.resize(terminalId, term.cols, term.rows)
     })
 
     const removeDataListener = window.terminalAPI.onData((id, data) => {
@@ -56,6 +56,7 @@ function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
     ro.observe(el)
 
     return () => {
+      mounted = false
       cancelAnimationFrame(rafId)
       removeDataListener()
       dataDisposable.dispose()

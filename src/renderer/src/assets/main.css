@@ -28,6 +28,7 @@ textarea {
 }
 
 :root {
+  --font-mono: 'JetBrainsMono NFM', ui-monospace, Menlo, monospace;
   --bg: #0F172A;
   --surface: #1A2438;
   --elevated: #222E45;
@@ -52,5 +53,5 @@ body,
   height: 100%;
   overflow: hidden;
   background: var(--bg);
-  font-family: 'JetBrainsMono NFM', ui-monospace, Menlo, monospace;
+  font-family: var(--font-mono);
 }
