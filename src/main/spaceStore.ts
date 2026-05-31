@@ -1,8 +1,9 @@
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
+import type { Layout } from '../shared/layout'
 
-export type Layout = 1 | 2 | 4 | 6
+export type { Layout }
 export type Agent = string
 
 export interface Space {

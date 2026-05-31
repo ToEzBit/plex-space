@@ -28,13 +28,18 @@ function PaneTerminal({ terminalId }: Props): React.JSX.Element {
     window.terminalAPI.create(terminalId)
 
     const el = containerRef.current
+    let rafId = 0
     const ro = new ResizeObserver(() => {
-      fitAddon.fit()
-      window.terminalAPI.resize(terminalId, term.cols, term.rows)
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        fitAddon.fit()
+        window.terminalAPI.resize(terminalId, term.cols, term.rows)
+      })
     })
     ro.observe(el)
 
     return () => {
+      cancelAnimationFrame(rafId)
       removeDataListener()
       dataDisposable.dispose()
       ro.disconnect()
