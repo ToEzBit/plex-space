@@ -19,7 +19,9 @@ const terminalAPI = {
 
 const spaceAPI = {
   selectDirectory: (): Promise<{ path: string; name: string } | null> =>
-    ipcRenderer.invoke('dialog:selectDirectory')
+    ipcRenderer.invoke('dialog:selectDirectory'),
+  isInstalled: (command: string): Promise<boolean> =>
+    ipcRenderer.invoke('system:which', command)
 }
 
 try {

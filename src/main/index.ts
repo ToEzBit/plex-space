@@ -3,6 +3,7 @@ import { join, basename } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import * as pty from 'node-pty'
 import { buildLaunchPlan } from './launchPlan'
+import { isInstalled } from './agentAvailability'
 
 interface TerminalEntry {
   pty: pty.IPty
@@ -44,6 +45,10 @@ app.whenReady().then(() => {
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
+  })
+
+  ipcMain.handle('system:which', async (_, command: string): Promise<boolean> => {
+    return isInstalled(command)
   })
 
   ipcMain.handle(

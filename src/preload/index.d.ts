@@ -10,6 +10,7 @@ interface TerminalAPI {
 
 interface SpaceAPI {
   selectDirectory: () => Promise<{ path: string; name: string } | null>
+  isInstalled: (command: string) => Promise<boolean>
 }
 
 declare global {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Layout } from '../../shared/layout'
 
 export interface SpaceConfig {
@@ -132,6 +132,15 @@ const styles = {
     padding: '8px 24px',
     fontSize: 14,
     cursor: 'not-allowed'
+  } as React.CSSProperties,
+  notInstalledBadge: {
+    display: 'inline-block',
+    marginTop: 4,
+    fontSize: 11,
+    color: '#f0a000',
+    background: '#3a2e00',
+    borderRadius: 3,
+    padding: '1px 6px'
   } as React.CSSProperties
 }
 
@@ -141,6 +150,15 @@ export default function NewSpaceWizard({ onLaunch }: Props): React.JSX.Element {
   const [name, setName] = useState('')
   const [layout, setLayout] = useState<Layout>(4)
   const [agentCommand, setAgentCommand] = useState('claude')
+  const [availability, setAvailability] = useState<Record<string, boolean>>({})
+
+  useEffect(() => {
+    Promise.all(
+      AGENTS.map(({ command }) =>
+        window.spaceAPI.isInstalled(command).then((installed) => [command, installed] as const)
+      )
+    ).then((entries) => setAvailability(Object.fromEntries(entries)))
+  }, [])
 
   async function handleBrowse(): Promise<void> {
     const result = await window.spaceAPI.selectDirectory()
@@ -213,7 +231,10 @@ export default function NewSpaceWizard({ onLaunch }: Props): React.JSX.Element {
                   style={agentCommand === command ? styles.optionBtnSelected : styles.optionBtn}
                   onClick={() => setAgentCommand(command)}
                 >
-                  {label}
+                  <div>{label}</div>
+                  {availability[command] === false && (
+                    <div style={styles.notInstalledBadge}>not installed</div>
+                  )}
                 </button>
               ))}
             </div>

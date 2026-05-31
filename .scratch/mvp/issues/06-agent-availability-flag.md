@@ -1,6 +1,6 @@
 # Agent availability flag
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -12,10 +12,10 @@ Add the **Agent availability** module: `isInstalled(command)` resolved via an in
 
 ## Acceptance criteria
 
-- [ ] An Agent availability module exposes `isInstalled(command)` with the exec call injected.
-- [ ] Unit tests (Vitest) cover installed vs not-installed via a fake exec.
-- [ ] The wizard's Agent step visibly flags Agents whose command is not on PATH.
-- [ ] Selecting and launching an uninstalled Agent still opens the grid; the Pane shows the shell's "command not found" and stays usable.
+- [x] An Agent availability module exposes `isInstalled(command)` with the exec call injected.
+- [x] Unit tests (Vitest) cover installed vs not-installed via a fake exec.
+- [x] The wizard's Agent step visibly flags Agents whose command is not on PATH.
+- [x] Selecting and launching an uninstalled Agent still opens the grid; the Pane shows the shell's "command not found" and stays usable.
 
 ## Blocked by
 
