@@ -1,6 +1,6 @@
 # Wizard restyle
 
-Status: ready-for-agent
+Status: done
 
 ## What to build
 
@@ -16,10 +16,10 @@ See `docs/design-system.md`.
 
 ## Acceptance criteria
 
-- [ ] All wizard steps render in the Visual System with no hard-coded hex literals
-- [ ] Layout and agent option buttons have clear selected/unselected + hover states
-- [ ] The "not installed" badge uses the warning token
-- [ ] Primary action uses the accent; the disabled Next state is visually distinct
+- [x] All wizard steps render in the Visual System with no hard-coded hex literals
+- [x] Layout and agent option buttons have clear selected/unselected + hover states
+- [x] The "not installed" badge uses the warning token
+- [x] Primary action uses the accent; the disabled Next state is visually distinct
 
 ## Blocked by
 

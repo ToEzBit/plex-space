@@ -34,52 +34,62 @@ const styles = {
   overlay: {
     width: '100vw',
     height: '100vh',
-    background: '#1e1e1e',
+    background: 'var(--bg)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
   } as React.CSSProperties,
   card: {
-    background: '#2d2d2d',
-    borderRadius: 8,
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    borderRadius: 9,
     padding: '32px 40px',
     width: 460,
-    color: '#e0e0e0'
+    color: 'var(--text)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
   } as React.CSSProperties,
-  title: { fontSize: 18, fontWeight: 600, marginBottom: 4 } as React.CSSProperties,
-  stepLabel: { fontSize: 13, color: '#888', marginBottom: 24 } as React.CSSProperties,
-  label: { display: 'block', fontSize: 13, color: '#aaa', marginBottom: 6 } as React.CSSProperties,
+  title: { fontSize: 14, fontWeight: 600, marginBottom: 4, color: 'var(--text)' } as React.CSSProperties,
+  stepLabel: { fontSize: 12, color: 'var(--text-muted)', marginBottom: 24 } as React.CSSProperties,
+  label: {
+    display: 'block',
+    fontSize: 12,
+    color: 'var(--text-secondary)',
+    marginBottom: 6
+  } as React.CSSProperties,
   input: {
     width: '100%',
-    boxSizing: 'border-box',
-    background: '#1e1e1e',
-    border: '1px solid #444',
-    borderRadius: 4,
-    color: '#e0e0e0',
+    boxSizing: 'border-box' as const,
+    background: 'var(--bg)',
+    border: '1px solid var(--border)',
+    borderRadius: 6,
+    color: 'var(--text)',
     padding: '7px 10px',
-    fontSize: 14,
+    fontSize: 13,
     marginBottom: 16
   } as React.CSSProperties,
   dirRow: { display: 'flex', gap: 8, marginBottom: 16 } as React.CSSProperties,
   dirInput: {
     flex: 1,
-    background: '#1e1e1e',
-    border: '1px solid #444',
-    borderRadius: 4,
-    color: '#e0e0e0',
+    minWidth: 0,
+    background: 'var(--bg)',
+    border: '1px solid var(--border)',
+    borderRadius: 6,
+    color: 'var(--text)',
     padding: '7px 10px',
-    fontSize: 14
+    fontSize: 13
   } as React.CSSProperties,
   browseBtn: {
-    background: '#3a3a3a',
-    border: '1px solid #555',
-    borderRadius: 4,
-    color: '#ccc',
+    background: 'var(--elevated)',
+    border: '1px solid var(--border)',
+    borderRadius: 6,
+    color: 'var(--text-secondary)',
     padding: '7px 14px',
     fontSize: 13,
     cursor: 'pointer',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap' as const,
+    transition: '150ms ease-out'
   } as React.CSSProperties,
+  browseBtnHov: { border: '1px solid var(--border-strong)', color: 'var(--text)' } as React.CSSProperties,
   optionGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
@@ -87,59 +97,92 @@ const styles = {
     marginBottom: 16
   } as React.CSSProperties,
   optionBtn: {
-    background: '#1e1e1e',
-    border: '1px solid #444',
-    borderRadius: 4,
-    color: '#ccc',
+    background: 'var(--bg)',
+    border: '1px solid var(--border)',
+    borderRadius: 6,
+    color: 'var(--text-secondary)',
     padding: '10px',
-    fontSize: 14,
+    fontSize: 13,
     cursor: 'pointer',
-    textAlign: 'center'
+    textAlign: 'center' as const,
+    transition: '150ms ease-out'
   } as React.CSSProperties,
-  get optionBtnSelected(): React.CSSProperties {
-    return { ...this.optionBtn, background: '#0066cc', border: '1px solid #0066cc', color: '#fff' }
-  },
+  optionBtnHov: {
+    background: 'var(--elevated)',
+    border: '1px solid var(--border-strong)',
+    color: 'var(--text)'
+  } as React.CSSProperties,
+  // delta: only the 3 properties that differ from optionBtn
+  optionBtnSel: {
+    background: 'var(--elevated)',
+    border: '1px solid var(--accent)',
+    color: 'var(--text)'
+  } as React.CSSProperties,
   footer: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginTop: 8
+    marginTop: 24
   } as React.CSSProperties,
   backBtn: {
     background: 'transparent',
-    border: '1px solid #555',
-    borderRadius: 4,
-    color: '#aaa',
+    border: '1px solid var(--border)',
+    borderRadius: 6,
+    color: 'var(--text-secondary)',
     padding: '8px 20px',
-    fontSize: 14,
-    cursor: 'pointer'
+    fontSize: 13,
+    cursor: 'pointer',
+    transition: '150ms ease-out'
+  } as React.CSSProperties,
+  backBtnHov: {
+    background: 'var(--elevated)',
+    border: '1px solid var(--border-strong)',
+    color: 'var(--text)'
   } as React.CSSProperties,
   nextBtn: {
-    background: '#0066cc',
+    background: 'var(--accent)',
     border: 'none',
-    borderRadius: 4,
-    color: '#fff',
+    borderRadius: 6,
+    color: 'var(--on-accent)',
     padding: '8px 24px',
-    fontSize: 14,
-    cursor: 'pointer'
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: '150ms ease-out'
   } as React.CSSProperties,
-  nextBtnDisabled: {
-    background: '#333',
-    border: 'none',
-    borderRadius: 4,
-    color: '#666',
-    padding: '8px 24px',
-    fontSize: 14,
+  nextBtnHov: { background: 'var(--accent-hover)' } as React.CSSProperties,
+  // delta: only the 4 properties that differ from nextBtn
+  nextBtnDis: {
+    background: 'var(--elevated)',
+    border: '1px solid var(--border)',
+    color: 'var(--text-muted)',
     cursor: 'not-allowed'
   } as React.CSSProperties,
   notInstalledBadge: {
     display: 'inline-block',
     marginTop: 4,
     fontSize: 11,
-    color: '#f0a000',
-    background: '#3a2e00',
+    color: 'var(--warning)',
+    border: '1px solid var(--warning)',
     borderRadius: 3,
     padding: '1px 6px'
   } as React.CSSProperties
+}
+
+// Pre-computed merged style objects — stable references so React avoids
+// redundant DOM style patches on every re-render while a button is hovered.
+const merged = {
+  browseHov: { ...styles.browseBtn, ...styles.browseBtnHov },
+  backHov:   { ...styles.backBtn,   ...styles.backBtnHov   },
+  nextHov:   { ...styles.nextBtn,   ...styles.nextBtnHov   },
+  nextDis:   { ...styles.nextBtn,   ...styles.nextBtnDis   },
+  optHov:    { ...styles.optionBtn, ...styles.optionBtnHov },
+  optSel:    { ...styles.optionBtn, ...styles.optionBtnSel },
+} as Record<string, React.CSSProperties>
+
+function optionStyle(selected: boolean, key: string, hovered: string | null): React.CSSProperties {
+  if (selected) return merged.optSel
+  if (hovered === key) return merged.optHov
+  return styles.optionBtn
 }
 
 export default function NewSpaceWizard({
@@ -160,6 +203,7 @@ export default function NewSpaceWizard({
   const [layout, setLayout] = useState<Layout>(initialLayout)
   const [agentCommand, setAgentCommand] = useState(initialAgent)
   const [availability, setAvailability] = useState<Record<string, boolean>>({})
+  const [hovered, setHovered] = useState<string | null>(null)
 
   useEffect(() => {
     Promise.all(
@@ -184,6 +228,7 @@ export default function NewSpaceWizard({
   const title = mode === 'open' ? `Open "${spaceName}"` : 'New Space'
   const isFirstStep = step === firstStep
   const isLastStep = step === 3
+  const nextDisabled = isFirstStep && !cwd
 
   return (
     <div style={styles.overlay}>
@@ -206,7 +251,12 @@ export default function NewSpaceWizard({
                 }}
                 placeholder="Choose a folder..."
               />
-              <button style={styles.browseBtn} onClick={handleBrowse}>
+              <button
+                style={hovered === 'browse' ? merged.browseHov : styles.browseBtn}
+                onClick={handleBrowse}
+                onMouseEnter={() => setHovered('browse')}
+                onMouseLeave={() => setHovered(null)}
+              >
                 Browse
               </button>
             </div>
@@ -224,15 +274,20 @@ export default function NewSpaceWizard({
           <>
             <label style={styles.label}>Layout</label>
             <div style={styles.optionGrid}>
-              {LAYOUTS.map(({ value, label }) => (
-                <button
-                  key={value}
-                  style={layout === value ? styles.optionBtnSelected : styles.optionBtn}
-                  onClick={() => setLayout(value)}
-                >
-                  {label}
-                </button>
-              ))}
+              {LAYOUTS.map(({ value, label }) => {
+                const key = String(value)
+                return (
+                  <button
+                    key={value}
+                    style={optionStyle(layout === value, key, hovered)}
+                    onClick={() => setLayout(value)}
+                    onMouseEnter={() => setHovered(key)}
+                    onMouseLeave={() => setHovered(null)}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
             </div>
           </>
         )}
@@ -244,8 +299,10 @@ export default function NewSpaceWizard({
               {AGENTS.map(({ command, label }) => (
                 <button
                   key={command}
-                  style={agentCommand === command ? styles.optionBtnSelected : styles.optionBtn}
+                  style={optionStyle(agentCommand === command, command, hovered)}
                   onClick={() => setAgentCommand(command)}
+                  onMouseEnter={() => setHovered(command)}
+                  onMouseLeave={() => setHovered(null)}
                 >
                   <div>{label}</div>
                   {availability[command] === false && (
@@ -259,24 +316,22 @@ export default function NewSpaceWizard({
 
         <div style={styles.footer}>
           <button
-            style={styles.backBtn}
+            style={hovered === 'back' ? merged.backHov : styles.backBtn}
             onClick={() => (isFirstStep ? onCancel?.() : setStep((s) => s - 1))}
+            onMouseEnter={() => setHovered('back')}
+            onMouseLeave={() => setHovered(null)}
           >
             {isFirstStep ? 'Cancel' : 'Back'}
           </button>
-          {!isLastStep ? (
-            <button
-              style={isFirstStep && !cwd ? styles.nextBtnDisabled : styles.nextBtn}
-              disabled={isFirstStep && !cwd}
-              onClick={() => setStep((s) => s + 1)}
-            >
-              Next
-            </button>
-          ) : (
-            <button style={styles.nextBtn} onClick={handleLaunch}>
-              Launch
-            </button>
-          )}
+          <button
+            style={nextDisabled ? merged.nextDis : hovered === 'next' ? merged.nextHov : styles.nextBtn}
+            disabled={nextDisabled}
+            onClick={isLastStep ? handleLaunch : () => setStep((s) => s + 1)}
+            onMouseEnter={() => setHovered('next')}
+            onMouseLeave={() => setHovered(null)}
+          >
+            {isLastStep ? 'Launch' : 'Next'}
+          </button>
         </div>
       </div>
     </div>
