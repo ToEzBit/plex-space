@@ -1,6 +1,6 @@
 # Multi-pane Layout grid
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -12,10 +12,10 @@ Render a chosen Layout as an equal-sized grid of Panes, each holding its own Ter
 
 ## Acceptance criteria
 
-- [ ] Selecting (in code/config for this slice) a Layout of 1/2/4/6 renders that many Panes in the specified geometry.
-- [ ] Each Pane contains exactly one Terminal, each backed by its own main-process pty.
-- [ ] All Panes run the same Agent (Model 2) in the same directory.
-- [ ] Panes are equal-sized; resizing the window resizes all Terminals.
+- [x] Selecting (in code/config for this slice) a Layout of 1/2/4/6 renders that many Panes in the specified geometry.
+- [x] Each Pane contains exactly one Terminal, each backed by its own main-process pty.
+- [x] All Panes run the same Agent (Model 2) in the same directory.
+- [x] Panes are equal-sized; resizing the window resizes all Terminals.
 
 ## Blocked by
 
