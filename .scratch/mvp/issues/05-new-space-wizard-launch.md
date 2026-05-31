@@ -1,6 +1,6 @@
 # New Space wizard → launch a grid
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -12,10 +12,10 @@ The 3-step New Space wizard that drives a real launch: Step 1 directory + name (
 
 ## Acceptance criteria
 
-- [ ] A 3-step wizard collects directory + name, Layout, and Agent, with Back/Next navigation.
-- [ ] The directory is chosen via the native folder picker; the name defaults to the directory's basename and is editable.
-- [ ] Finishing the wizard opens the grid in the chosen directory with all Panes running the chosen Agent.
-- [ ] The Agent options come from the hardcoded 2-entry registry.
+- [x] A 3-step wizard collects directory + name, Layout, and Agent, with Back/Next navigation.
+- [x] The directory is chosen via the native folder picker; the name defaults to the directory's basename and is editable.
+- [x] Finishing the wizard opens the grid in the chosen directory with all Panes running the chosen Agent.
+- [x] The Agent options come from the hardcoded 2-entry registry.
 
 ## Blocked by
 

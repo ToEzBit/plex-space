@@ -1,8 +1,7 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import * as pty from 'node-pty'
-import os from 'os'
 import { buildLaunchPlan } from './launchPlan'
 
 interface TerminalEntry {
@@ -47,29 +46,43 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  ipcMain.handle('terminal:create', (event, terminalId: string) => {
-    const shell = process.env.SHELL || '/bin/zsh'
-    const plan = buildLaunchPlan(shell, 'claude')
+  ipcMain.handle(
+    'dialog:selectDirectory',
+    async (): Promise<{ path: string; name: string } | null> => {
+      const result = await dialog.showOpenDialog({ properties: ['openDirectory'] })
+      if (result.canceled || result.filePaths.length === 0) return null
+      const filePath = result.filePaths[0]
+      const name = filePath.split('/').pop() ?? filePath
+      return { path: filePath, name }
+    }
+  )
 
-    const ptyProcess = pty.spawn(plan.spawnFile, plan.spawnArgs, {
-      name: 'xterm-256color',
-      cwd: os.homedir(),
-      env: process.env as Record<string, string>,
-      cols: 80,
-      rows: 24
-    })
+  ipcMain.handle(
+    'terminal:create',
+    (event, terminalId: string, cwd: string, agentCommand: string) => {
+      const shell = process.env.SHELL || '/bin/zsh'
+      const plan = buildLaunchPlan(shell, agentCommand)
 
-    const win = BrowserWindow.fromWebContents(event.sender)
-    ptyProcess.onData((data) => {
-      win?.webContents.send('terminal:data', terminalId, data)
-    })
+      const ptyProcess = pty.spawn(plan.spawnFile, plan.spawnArgs, {
+        name: 'xterm-256color',
+        cwd,
+        env: process.env as Record<string, string>,
+        cols: 80,
+        rows: 24
+      })
 
-    const sendTimer = setTimeout(() => {
-      ptyProcess.write(plan.sendSequence)
-    }, plan.sendDelayMs)
+      const win = BrowserWindow.fromWebContents(event.sender)
+      ptyProcess.onData((data) => {
+        win?.webContents.send('terminal:data', terminalId, data)
+      })
 
-    terminals.set(terminalId, { pty: ptyProcess, sendTimer })
-  })
+      const sendTimer = setTimeout(() => {
+        ptyProcess.write(plan.sendSequence)
+      }, plan.sendDelayMs)
+
+      terminals.set(terminalId, { pty: ptyProcess, sendTimer })
+    }
+  )
 
   ipcMain.on('terminal:input', (_, terminalId: string, data: string) => {
     terminals.get(terminalId)?.pty.write(data)

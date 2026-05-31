@@ -1,10 +1,16 @@
+import { useState } from 'react'
 import PaneTerminal from './PaneTerminal'
-import { layoutGeometry, type Layout } from './layoutGeometry'
-
-const LAYOUT: Layout = 4
+import { layoutGeometry } from './layoutGeometry'
+import NewSpaceWizard, { type SpaceConfig } from './NewSpaceWizard'
 
 function App(): React.JSX.Element {
-  const { cols, rows } = layoutGeometry(LAYOUT)
+  const [config, setConfig] = useState<SpaceConfig | null>(null)
+
+  if (!config) {
+    return <NewSpaceWizard onLaunch={setConfig} />
+  }
+
+  const { cols, rows } = layoutGeometry(config.layout)
 
   return (
     <div
@@ -20,8 +26,13 @@ function App(): React.JSX.Element {
         boxSizing: 'border-box'
       }}
     >
-      {Array.from({ length: LAYOUT }, (_, i) => (
-        <PaneTerminal key={`terminal-${i}`} terminalId={`terminal-${i}`} />
+      {Array.from({ length: config.layout }, (_, i) => (
+        <PaneTerminal
+          key={`terminal-${i}`}
+          terminalId={`terminal-${i}`}
+          cwd={config.cwd}
+          agentCommand={config.agentCommand}
+        />
       ))}
     </div>
   )

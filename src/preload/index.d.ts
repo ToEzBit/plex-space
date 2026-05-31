@@ -1,16 +1,21 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 interface TerminalAPI {
-  create: (terminalId: string) => Promise<void>
+  create: (terminalId: string, cwd: string, agentCommand: string) => Promise<void>
   input: (terminalId: string, data: string) => void
   resize: (terminalId: string, cols: number, rows: number) => void
   destroy: (terminalId: string) => void
   onData: (handler: (terminalId: string, data: string) => void) => () => void
 }
 
+interface SpaceAPI {
+  selectDirectory: () => Promise<{ path: string; name: string } | null>
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
     terminalAPI: TerminalAPI
+    spaceAPI: SpaceAPI
   }
 }

@@ -5,9 +5,11 @@ import '@xterm/xterm/css/xterm.css'
 
 interface Props {
   terminalId: string
+  cwd: string
+  agentCommand: string
 }
 
-function PaneTerminal({ terminalId }: Props): React.JSX.Element {
+function PaneTerminal({ terminalId, cwd, agentCommand }: Props): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -25,7 +27,7 @@ function PaneTerminal({ terminalId }: Props): React.JSX.Element {
 
     const dataDisposable = term.onData((data) => window.terminalAPI.input(terminalId, data))
 
-    window.terminalAPI.create(terminalId)
+    window.terminalAPI.create(terminalId, cwd, agentCommand)
 
     const el = containerRef.current
     let rafId = 0
