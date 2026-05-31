@@ -26,7 +26,7 @@ const styles = {
     flex: 1,
     background: 'var(--bg)',
     display: 'grid',
-    gap: '2px',
+    gap: 0,
     padding: '4px'
   }
 }

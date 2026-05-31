@@ -178,6 +178,12 @@ button:active:not(:disabled) {
   font-size: 12px;
 }
 
+/* -- xterm scrollbar ------------------------------------------------------ */
+
+.xterm-viewport::-webkit-scrollbar {
+  display: none;
+}
+
 /* -- Reduced motion ------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
