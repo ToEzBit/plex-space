@@ -21,6 +21,7 @@ interface Props {
 const LAYOUTS: { value: Layout; label: string }[] = [
   { value: 1, label: '1 Pane' },
   { value: 2, label: '2 Panes' },
+  { value: 3, label: '3 Panes' },
   { value: 4, label: '4 Panes' },
   { value: 6, label: '6 Panes' }
 ]

@@ -13,7 +13,7 @@ The app's home view: the list of saved Spaces, from which the user opens one or 
 _Avoid_: dashboard, home, projects
 
 **Layout**:
-The arrangement of Panes within an open Space. Selectable as 1, 2, 4, or 6 panes.
+The arrangement of Panes within an open Space. Selectable as 1, 2, 3, 4, or 6 panes. The 3-pane layout places two equal Panes on top and one full-width Pane on the bottom.
 _Avoid_: grid, view, split
 
 **Pane**:
@@ -32,7 +32,7 @@ _Avoid_: tool, CLI, bot, model, assistant
 
 - A **Space** saves only its name and one working directory.
 - When a Space is opened, the user picks one **Layout** and one **Agent** for that run (defaulting to the last used); neither is part of the saved Space.
-- A **Layout** holds N **Panes** (N ∈ {1, 2, 4, 6}).
+- A **Layout** holds N **Panes** (N ∈ {1, 2, 3, 4, 6}).
 - A **Pane** runs one **Terminal**.
 - A **Terminal** runs one **Agent**.
 - The **Agent** applies to every **Pane** in the Space — every Terminal runs the same kind of Agent.

@@ -114,7 +114,7 @@ function App(): React.JSX.Element {
     <>
       {Object.entries(openSpaces).map(([spaceId, { config, terminalIds }]) => {
         const isActive = view === 'grid' && spaceId === activeSpaceId
-        const { cols, rows } = layoutGeometry(config.layout)
+        const { cols, rows, paneSpans } = layoutGeometry(config.layout)
         return (
           <div
             key={spaceId}
@@ -138,9 +138,17 @@ function App(): React.JSX.Element {
                 gridTemplateRows: `repeat(${rows}, 1fr)`
               }}
             >
-              {terminalIds.map((terminalId) => (
-                <PaneTerminal key={terminalId} terminalId={terminalId} visible={isActive} />
-              ))}
+              {terminalIds.map((terminalId, i) => {
+                const span = paneSpans?.[i]
+                if (span && span > 1) {
+                  return (
+                    <div key={terminalId} style={{ gridColumn: `span ${span}` }}>
+                      <PaneTerminal terminalId={terminalId} visible={isActive} />
+                    </div>
+                  )
+                }
+                return <PaneTerminal key={terminalId} terminalId={terminalId} visible={isActive} />
+              })}
             </div>
           </div>
         )

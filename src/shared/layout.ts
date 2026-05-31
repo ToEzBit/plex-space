@@ -1,1 +1,1 @@
-export type Layout = 1 | 2 | 4 | 6
+export type Layout = 1 | 2 | 3 | 4 | 6
