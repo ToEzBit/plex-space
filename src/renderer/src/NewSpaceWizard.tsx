@@ -9,7 +9,13 @@ export interface SpaceConfig {
 }
 
 interface Props {
+  mode?: 'new' | 'open'
+  spaceName?: string
+  spaceCwd?: string
+  initialLayout?: Layout
+  initialAgent?: string
   onLaunch: (config: SpaceConfig) => void
+  onCancel?: () => void
 }
 
 const LAYOUTS: { value: Layout; label: string }[] = [
@@ -91,16 +97,9 @@ const styles = {
     cursor: 'pointer',
     textAlign: 'center'
   } as React.CSSProperties,
-  optionBtnSelected: {
-    background: '#0066cc',
-    border: '1px solid #0066cc',
-    borderRadius: 4,
-    color: '#fff',
-    padding: '10px',
-    fontSize: 14,
-    cursor: 'pointer',
-    textAlign: 'center'
-  } as React.CSSProperties,
+  get optionBtnSelected(): React.CSSProperties {
+    return { ...this.optionBtn, background: '#0066cc', border: '1px solid #0066cc', color: '#fff' }
+  },
   footer: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -144,12 +143,23 @@ const styles = {
   } as React.CSSProperties
 }
 
-export default function NewSpaceWizard({ onLaunch }: Props): React.JSX.Element {
-  const [step, setStep] = useState(1)
-  const [cwd, setCwd] = useState('')
-  const [name, setName] = useState('')
-  const [layout, setLayout] = useState<Layout>(4)
-  const [agentCommand, setAgentCommand] = useState('claude')
+export default function NewSpaceWizard({
+  mode = 'new',
+  spaceName,
+  spaceCwd,
+  initialLayout = 4,
+  initialAgent = 'claude',
+  onLaunch,
+  onCancel
+}: Props): React.JSX.Element {
+  const firstStep = mode === 'open' ? 2 : 1
+  const totalSteps = mode === 'open' ? 2 : 3
+
+  const [step, setStep] = useState(firstStep)
+  const [cwd, setCwd] = useState(spaceCwd ?? '')
+  const [name, setName] = useState(spaceName ?? '')
+  const [layout, setLayout] = useState<Layout>(initialLayout)
+  const [agentCommand, setAgentCommand] = useState(initialAgent)
   const [availability, setAvailability] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
@@ -171,11 +181,18 @@ export default function NewSpaceWizard({ onLaunch }: Props): React.JSX.Element {
     onLaunch({ name, cwd, layout, agentCommand })
   }
 
+  const displayStep = mode === 'open' ? step - 1 : step
+  const title = mode === 'open' ? `Open "${spaceName}"` : 'New Space'
+  const isFirstStep = step === firstStep
+  const isLastStep = step === 3
+
   return (
     <div style={styles.overlay}>
       <div style={styles.card}>
-        <div style={styles.title}>New Space</div>
-        <div style={styles.stepLabel}>Step {step} of 3</div>
+        <div style={styles.title}>{title}</div>
+        <div style={styles.stepLabel}>
+          Step {displayStep} of {totalSteps}
+        </div>
 
         {step === 1 && (
           <>
@@ -243,15 +260,15 @@ export default function NewSpaceWizard({ onLaunch }: Props): React.JSX.Element {
 
         <div style={styles.footer}>
           <button
-            style={{ ...styles.backBtn, visibility: step === 1 ? 'hidden' : undefined }}
-            onClick={() => setStep((s) => s - 1)}
+            style={styles.backBtn}
+            onClick={() => (isFirstStep ? onCancel?.() : setStep((s) => s - 1))}
           >
-            Back
+            {isFirstStep ? 'Cancel' : 'Back'}
           </button>
-          {step < 3 ? (
+          {!isLastStep ? (
             <button
-              style={step === 1 && !cwd ? styles.nextBtnDisabled : styles.nextBtn}
-              disabled={step === 1 && !cwd}
+              style={isFirstStep && !cwd ? styles.nextBtnDisabled : styles.nextBtn}
+              disabled={isFirstStep && !cwd}
               onClick={() => setStep((s) => s + 1)}
             >
               Next

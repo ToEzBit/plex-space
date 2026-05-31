@@ -1,6 +1,6 @@
 # Persist Spaces + Space list
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -12,11 +12,11 @@ Wire the Space store (issue 02) into the UI. Add the Space list as the app's hom
 
 ## Acceptance criteria
 
-- [ ] The home view lists saved Spaces showing name and directory.
-- [ ] "New Space" launches the wizard; finishing it persists the Space and it appears in the list.
-- [ ] A Space can be removed from the list.
-- [ ] Opening a saved Space prompts for Layout + Agent (reusing wizard steps 2–3), defaulted to the last-used values, then launches the grid.
-- [ ] Only `{ id, name, directory }` is persisted per Space (Layout/Agent are not).
+- [x] The home view lists saved Spaces showing name and directory.
+- [x] "New Space" launches the wizard; finishing it persists the Space and it appears in the list.
+- [x] A Space can be removed from the list.
+- [x] Opening a saved Space prompts for Layout + Agent (reusing wizard steps 2–3), defaulted to the last-used values, then launches the grid.
+- [x] Only `{ id, name, directory }` is persisted per Space (Layout/Agent are not).
 
 ## Blocked by
 

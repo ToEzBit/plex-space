@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import * as pty from 'node-pty'
 import { buildLaunchPlan } from './launchPlan'
 import { isInstalled } from './agentAvailability'
+import { SpaceStore, JsonFileBackend, type Space, type LastUsed } from './spaceStore'
 
 interface TerminalEntry {
   pty: pty.IPty
@@ -43,9 +44,21 @@ function createWindow(): void {
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.plex-space')
 
+  const store = new SpaceStore(new JsonFileBackend(join(app.getPath('userData'), 'spaces.json')))
+
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  ipcMain.handle('space:list', (): Space[] => store.list())
+  ipcMain.handle('space:create', (_, opts: { name?: string; directory: string }): Space =>
+    store.create(opts)
+  )
+  ipcMain.handle('space:remove', (_, id: string): void => store.remove(id))
+  ipcMain.handle('space:getLastUsed', (): LastUsed | null => store.getLastUsed())
+  ipcMain.handle('space:setLastUsed', (_, lastUsed: LastUsed): void =>
+    store.setLastUsed(lastUsed)
+  )
 
   ipcMain.handle('system:which', async (_, command: string): Promise<boolean> => {
     return isInstalled(command)
