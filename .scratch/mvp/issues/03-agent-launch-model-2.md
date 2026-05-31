@@ -1,6 +1,6 @@
 # Agent launch via Model 2 (launch-plan builder)
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -12,11 +12,11 @@ Make the Terminal launch an Agent the way ADR-0001 specifies (Model 2): spawn th
 
 ## Acceptance criteria
 
-- [ ] The launch-plan builder is a pure function (no I/O) returning spawn args + send-sequence for Model 2.
-- [ ] Unit tests (Vitest) assert the builder's output for a given shell + Agent command.
-- [ ] Launching the app spawns the shell and then the hardcoded Agent inside it.
-- [ ] When the Agent process exits, the Terminal shows a usable shell prompt (the Pane does not die).
-- [ ] The shell is interactive, so the user's PATH/env is loaded and the Agent binary resolves even on a non-default PATH.
+- [x] The launch-plan builder is a pure function (no I/O) returning spawn args + send-sequence for Model 2.
+- [x] Unit tests (Vitest) assert the builder's output for a given shell + Agent command.
+- [x] Launching the app spawns the shell and then the hardcoded Agent inside it.
+- [x] When the Agent process exits, the Terminal shows a usable shell prompt (the Pane does not die).
+- [x] The shell is interactive, so the user's PATH/env is loaded and the Agent binary resolves even on a non-default PATH.
 
 ## Blocked by
 

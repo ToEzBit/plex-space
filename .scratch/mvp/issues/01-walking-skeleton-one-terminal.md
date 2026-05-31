@@ -1,6 +1,6 @@
 # Walking skeleton: one live Terminal
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -14,12 +14,20 @@ The pty runs in the **main process** (`node-pty` spawning the user's shell), the
 
 ## Acceptance criteria
 
-- [ ] `npm install` then the dev command launches the Electron app on macOS.
-- [ ] The window shows one Terminal running the user's shell; typing and output work both ways.
-- [ ] Resizing the window resizes the Terminal (cols/rows update).
-- [ ] The pty is owned by the main process; the renderer holds only the `xterm.js` instance.
-- [ ] IPC messages carry a `terminalId`; the main process tracks Terminals in an ID-keyed map.
-- [ ] Vitest is configured and `npm test` runs (even if only a trivial test exists).
+- [x] `npm install` then the dev command launches the Electron app on macOS.
+- [x] The window shows one Terminal running the user's shell; typing and output work both ways.
+- [x] Resizing the window resizes the Terminal (cols/rows update).
+- [x] The pty is owned by the main process; the renderer holds only the `xterm.js` instance.
+- [x] IPC messages carry a `terminalId`; the main process tracks Terminals in an ID-keyed map.
+- [x] Vitest is configured and `npm test` runs (even if only a trivial test exists).
+
+## Note
+
+`~/Library/Caches/electron` is root-owned on this machine. Run once:
+```
+sudo chown -R $(whoami) ~/Library/Caches/electron
+```
+Then `npm install` and `npm run dev` work normally.
 
 ## Blocked by
 
