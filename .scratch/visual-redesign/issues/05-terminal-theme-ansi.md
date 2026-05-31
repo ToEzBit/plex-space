@@ -1,6 +1,6 @@
 # Terminal theme + ANSI 16-color set
 
-Status: ready-for-agent
+Status: done
 
 ## What to build
 
@@ -13,9 +13,9 @@ re-attached Space — renders identical colors.
 
 ## Acceptance criteria
 
-- [ ] Each terminal is constructed with the design-system xterm theme (background/foreground/cursor/cursorAccent/selection)
-- [ ] The full 16-color ANSI set from `docs/design-system.md` is applied
-- [ ] Colors are consistent across all panes in a layout and across re-attached Spaces
+- [x] Each terminal is constructed with the design-system xterm theme (background/foreground/cursor/cursorAccent/selection)
+- [x] The full 16-color ANSI set from `docs/design-system.md` is applied
+- [x] Colors are consistent across all panes in a layout and across re-attached Spaces
 
 ## Blocked by
 

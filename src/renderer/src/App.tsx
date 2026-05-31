@@ -4,7 +4,7 @@ import { layoutGeometry } from './layoutGeometry'
 import NewSpaceWizard, { type SpaceConfig } from './NewSpaceWizard'
 import SpaceList from './SpaceList'
 
-const _btn = {
+const btnBase = {
   background: 'transparent',
   borderRadius: 4,
   padding: '3px 10px',
@@ -28,15 +28,14 @@ const styles = {
     color: 'var(--text)',
     fontWeight: 500
   },
-  closeBtn: { ..._btn, border: '1px solid var(--danger)', color: 'var(--danger)' },
-  listBtn: { ..._btn, border: '1px solid var(--border)', color: 'var(--text-secondary)' },
+  closeBtn: { ...btnBase, border: '1px solid var(--danger)', color: 'var(--danger)' },
+  listBtn: { ...btnBase, border: '1px solid var(--border)', color: 'var(--text-secondary)' },
   paneArea: {
     flex: 1,
     background: 'var(--bg)',
     display: 'grid',
     gap: '2px',
-    padding: '4px',
-    boxSizing: 'border-box' as const
+    padding: '4px'
   }
 }
 
