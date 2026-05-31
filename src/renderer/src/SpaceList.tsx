@@ -1,10 +1,21 @@
 import { useState } from 'react'
 
+const _rowBtn = {
+  background: 'transparent',
+  borderRadius: 4,
+  padding: '4px 10px',
+  fontSize: 12,
+  cursor: 'pointer',
+  marginLeft: 12,
+  flexShrink: 0
+}
+
 interface Props {
   spaces: Space[]
   openSpaceIds: Set<string>
   onNewSpace: () => void
   onOpenSpace: (space: Space) => void
+  onCloseSpace: (id: string) => void
   onRemoveSpace: (id: string) => void
 }
 
@@ -70,17 +81,8 @@ const styles = {
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap' as const
   },
-  removeBtn: {
-    background: 'transparent',
-    border: '1px solid #555',
-    borderRadius: 4,
-    color: '#888',
-    padding: '4px 10px',
-    fontSize: 12,
-    cursor: 'pointer',
-    marginLeft: 12,
-    flexShrink: 0
-  },
+  removeBtn: { ..._rowBtn, border: '1px solid #555', color: '#888' },
+  stopBtn: { ..._rowBtn, border: '1px solid #c0392b', color: '#e74c3c' },
   runningBadge: {
     fontSize: 11,
     color: '#4caf50',
@@ -97,6 +99,7 @@ export default function SpaceList({
   openSpaceIds,
   onNewSpace,
   onOpenSpace,
+  onCloseSpace,
   onRemoveSpace
 }: Props): React.JSX.Element {
   return (
@@ -117,6 +120,10 @@ export default function SpaceList({
               space={space}
               running={openSpaceIds.has(space.id)}
               onOpen={() => onOpenSpace(space)}
+              onClose={(e) => {
+                e.stopPropagation()
+                onCloseSpace(space.id)
+              }}
               onRemove={(e) => {
                 e.stopPropagation()
                 onRemoveSpace(space.id)
@@ -133,11 +140,13 @@ function SpaceRow({
   space,
   running,
   onOpen,
+  onClose,
   onRemove
 }: {
   space: Space
   running: boolean
   onOpen: () => void
+  onClose: (e: React.MouseEvent) => void
   onRemove: (e: React.MouseEvent) => void
 }): React.JSX.Element {
   const [hovered, setHovered] = useState(false)
@@ -155,6 +164,11 @@ function SpaceRow({
         </div>
         <div style={styles.spaceDir}>{space.directory}</div>
       </div>
+      {running && (
+        <button style={styles.stopBtn} onClick={onClose}>
+          Close
+        </button>
+      )}
       <button style={styles.removeBtn} onClick={onRemove}>
         Remove
       </button>

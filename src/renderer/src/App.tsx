@@ -62,18 +62,20 @@ function App(): React.JSX.Element {
     }
   }
 
+  async function handleCloseSpace(spaceId: string): Promise<void> {
+    await window.spaceAPI.closeGrid(spaceId)
+    setOpenSpaces((prev) => {
+      const next = { ...prev }
+      delete next[spaceId]
+      return next
+    })
+    setActiveSpaceId((prev) => (prev === spaceId ? null : prev))
+    if (activeSpaceId === spaceId) setView('list')
+  }
+
   async function handleRemoveSpace(id: string): Promise<void> {
     if (openSpaces[id]) {
-      await window.spaceAPI.closeGrid(id)
-      setOpenSpaces((prev) => {
-        const next = { ...prev }
-        delete next[id]
-        return next
-      })
-      if (activeSpaceId === id) {
-        setActiveSpaceId(null)
-        setView('list')
-      }
+      await handleCloseSpace(id)
     }
     await window.spaceAPI.removeSpace(id)
     setSpaces((prev) => prev.filter((s) => s.id !== id))
@@ -111,20 +113,36 @@ function App(): React.JSX.Element {
               }}
             >
               <span>{config.name}</span>
-              <button
-                onClick={() => setView('list')}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid #444',
-                  borderRadius: 4,
-                  color: '#aaa',
-                  padding: '3px 10px',
-                  fontSize: 12,
-                  cursor: 'pointer'
-                }}
-              >
-                Space List
-              </button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  onClick={() => handleCloseSpace(spaceId)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid #c0392b',
+                    borderRadius: 4,
+                    color: '#e74c3c',
+                    padding: '3px 10px',
+                    fontSize: 12,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Close Space
+                </button>
+                <button
+                  onClick={() => setView('list')}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid #444',
+                    borderRadius: 4,
+                    color: '#aaa',
+                    padding: '3px 10px',
+                    fontSize: 12,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Space List
+                </button>
+              </div>
             </div>
             <div
               style={{
@@ -152,6 +170,7 @@ function App(): React.JSX.Element {
           openSpaceIds={openSpaceIds}
           onNewSpace={() => setView('new-wizard')}
           onOpenSpace={handleOpenSpace}
+          onCloseSpace={handleCloseSpace}
           onRemoveSpace={handleRemoveSpace}
         />
       )}

@@ -1,6 +1,6 @@
 # Close Space + quit teardown
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -12,10 +12,10 @@ The explicit teardown paths (ADR-0003). A "Close Space" action stops that Space'
 
 ## Acceptance criteria
 
-- [ ] A "Close Space" action stops that Space's Terminals and removes its "running" badge.
-- [ ] After Close Space, the Space remains in the list and can be reopened (with fresh Terminals).
-- [ ] Quitting the app stops all Terminals across all open Spaces (no orphaned pty processes).
-- [ ] "Close Space" affects only the targeted Space; other open Spaces keep running.
+- [x] A "Close Space" action stops that Space's Terminals and removes its "running" badge.
+- [x] After Close Space, the Space remains in the list and can be reopened (with fresh Terminals).
+- [x] Quitting the app stops all Terminals across all open Spaces (no orphaned pty processes).
+- [x] "Close Space" affects only the targeted Space; other open Spaces keep running.
 
 ## Blocked by
 
