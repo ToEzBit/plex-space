@@ -23,8 +23,8 @@ const styles = {
   container: {
     width: '100vw',
     height: '100vh',
-    background: '#1e1e1e',
-    color: '#e0e0e0',
+    background: 'var(--bg)',
+    color: 'var(--text)',
     fontFamily: 'system-ui, sans-serif',
     display: 'flex',
     flexDirection: 'column' as const
@@ -34,14 +34,14 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '16px 24px',
-    borderBottom: '1px solid #333'
+    borderBottom: '1px solid var(--border)'
   },
-  appTitle: { fontSize: 16, fontWeight: 600, color: '#e0e0e0' },
+  appTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text)' },
   newBtn: {
-    background: '#0066cc',
+    background: 'var(--accent)',
     border: 'none',
     borderRadius: 4,
-    color: '#fff',
+    color: 'var(--on-accent)',
     padding: '7px 16px',
     fontSize: 13,
     cursor: 'pointer'
@@ -52,7 +52,7 @@ const styles = {
     padding: '16px 24px'
   },
   empty: {
-    color: '#666',
+    color: 'var(--text-muted)',
     fontSize: 14,
     marginTop: 40,
     textAlign: 'center' as const
@@ -63,30 +63,30 @@ const styles = {
     justifyContent: 'space-between',
     padding: '12px 16px',
     marginBottom: 8,
-    background: '#2d2d2d',
+    background: 'var(--surface)',
     borderRadius: 6,
     cursor: 'pointer',
     border: '1px solid transparent'
   },
   rowHovered: {
-    background: '#353535',
-    border: '1px solid #444'
+    background: 'var(--elevated)',
+    border: '1px solid var(--border-strong)'
   },
   rowInfo: { flex: 1, minWidth: 0 },
-  spaceName: { fontSize: 14, fontWeight: 500, color: '#e0e0e0', marginBottom: 2 },
+  spaceName: { fontSize: 14, fontWeight: 500, color: 'var(--text)', marginBottom: 2 },
   spaceDir: {
     fontSize: 12,
-    color: '#888',
+    color: 'var(--text-muted)',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap' as const
   },
-  removeBtn: { ..._rowBtn, border: '1px solid #555', color: '#888' },
-  stopBtn: { ..._rowBtn, border: '1px solid #c0392b', color: '#e74c3c' },
+  removeBtn: { ..._rowBtn, border: '1px solid var(--border)', color: 'var(--text-secondary)' },
+  stopBtn: { ..._rowBtn, border: '1px solid var(--danger)', color: 'var(--danger)' },
   runningBadge: {
     fontSize: 11,
-    color: '#4caf50',
-    border: '1px solid #4caf50',
+    color: 'var(--success)',
+    border: '1px solid var(--success)',
     borderRadius: 10,
     padding: '2px 7px',
     marginLeft: 8,
@@ -162,7 +162,7 @@ function SpaceRow({
           <span style={styles.spaceName}>{space.name}</span>
           {running && <span style={styles.runningBadge}>running</span>}
         </div>
-        <div style={styles.spaceDir}>{space.directory}</div>
+        <div style={hovered ? { ...styles.spaceDir, color: 'var(--text-secondary)' } : styles.spaceDir}>{space.directory}</div>
       </div>
       {running && (
         <button style={styles.stopBtn} onClick={onClose}>

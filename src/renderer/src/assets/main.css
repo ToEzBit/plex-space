@@ -6,11 +6,29 @@
   padding: 0;
 }
 
+:root {
+  --bg: #0F172A;
+  --surface: #1A2438;
+  --elevated: #222E45;
+  --border: #2D3A52;
+  --border-strong: #3A4A66;
+  --text: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #8595A8;
+  --accent: #2CF9ED;
+  --accent-hover: #5FFBF1;
+  --accent-active: #1FD6CB;
+  --on-accent: #04141A;
+  --success: #35E0A6;
+  --warning: #F5C45E;
+  --danger: #FF6B7A;
+}
+
 html,
 body,
 #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #1e1e1e;
+  background: var(--bg);
 }

@@ -1,6 +1,6 @@
 # Design tokens + Space list restyle
 
-Status: ready-for-agent
+Status: done
 
 ## What to build
 
@@ -18,10 +18,10 @@ scope.
 
 ## Acceptance criteria
 
-- [ ] The full palette from `docs/design-system.md` exists as CSS custom properties available app-wide
-- [ ] The Space list (header, New Space, rows, Close/Remove, running badge, empty state) renders in the Slate + Cyan system with no hard-coded hex literals
-- [ ] The running badge uses the green success token; cyan appears only on actions
-- [ ] Secondary and muted text meet WCAG AA contrast on their backgrounds
+- [x] The full palette from `docs/design-system.md` exists as CSS custom properties available app-wide
+- [x] The Space list (header, New Space, rows, Close/Remove, running badge, empty state) renders in the Slate + Cyan system with no hard-coded hex literals
+- [x] The running badge uses the green success token; cyan appears only on actions
+- [x] Secondary and muted text meet WCAG AA contrast on their backgrounds
 
 ## Blocked by
 
