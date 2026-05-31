@@ -1,15 +1,3 @@
-import { useState } from 'react'
-
-const _rowBtn = {
-  background: 'transparent',
-  borderRadius: 4,
-  padding: '4px 10px',
-  fontSize: 12,
-  cursor: 'pointer',
-  marginLeft: 12,
-  flexShrink: 0
-}
-
 interface Props {
   spaces: Space[]
   openSpaceIds: Set<string>
@@ -36,40 +24,17 @@ const styles = {
     borderBottom: '1px solid var(--border)'
   },
   appTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text)' },
-  newBtn: {
-    background: 'var(--accent)',
-    border: 'none',
-    borderRadius: 4,
-    color: 'var(--on-accent)',
-    padding: '7px 16px',
-    fontSize: 13,
-    cursor: 'pointer'
-  },
   list: {
     flex: 1,
     overflowY: 'auto' as const,
     padding: '16px 24px'
-  },
-  empty: {
-    color: 'var(--text-muted)',
-    fontSize: 14,
-    marginTop: 40,
-    textAlign: 'center' as const
   },
   row: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '12px 16px',
-    marginBottom: 8,
-    background: 'var(--surface)',
-    borderRadius: 6,
-    cursor: 'pointer',
-    border: '1px solid transparent'
-  },
-  rowHovered: {
-    background: 'var(--elevated)',
-    border: '1px solid var(--border-strong)'
+    marginBottom: 8
   },
   rowInfo: { flex: 1, minWidth: 0 },
   spaceName: { fontSize: 14, fontWeight: 500, color: 'var(--text)', marginBottom: 2 },
@@ -80,8 +45,6 @@ const styles = {
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap' as const
   },
-  removeBtn: { ..._rowBtn, border: '1px solid var(--border)', color: 'var(--text-secondary)' },
-  stopBtn: { ..._rowBtn, border: '1px solid var(--danger)', color: 'var(--danger)' },
   runningBadge: {
     fontSize: 11,
     color: 'var(--success)',
@@ -92,6 +55,8 @@ const styles = {
     flexShrink: 0
   }
 }
+
+const rowBtnSize: React.CSSProperties = { padding: '4px 10px', fontSize: 12, marginLeft: 12, flexShrink: 0 }
 
 export default function SpaceList({
   spaces,
@@ -105,13 +70,17 @@ export default function SpaceList({
     <div style={styles.container}>
       <div style={styles.header}>
         <span style={styles.appTitle}>Plex Space</span>
-        <button style={styles.newBtn} onClick={onNewSpace}>
+        <button className="btn-primary" style={{ padding: '7px 16px', fontSize: 13 }} onClick={onNewSpace}>
           New Space
         </button>
       </div>
       <div style={styles.list}>
         {spaces.length === 0 ? (
-          <div style={styles.empty}>No spaces yet. Create one to get started.</div>
+          <div className="empty-state">
+            <div className="empty-state-glyph">◻</div>
+            <div className="empty-state-title">No spaces yet</div>
+            <div className="empty-state-sub">Click New Space to create your first terminal grid</div>
+          </div>
         ) : (
           spaces.map((space) => (
             <SpaceRow
@@ -148,27 +117,33 @@ function SpaceRow({
   onClose: (e: React.MouseEvent) => void
   onRemove: (e: React.MouseEvent) => void
 }): React.JSX.Element {
-  const [hovered, setHovered] = useState(false)
   return (
     <div
-      style={hovered ? { ...styles.row, ...styles.rowHovered } : styles.row}
+      className="space-row"
+      style={styles.row}
+      role="button"
+      tabIndex={0}
       onClick={onOpen}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onKeyDown={(e) => {
+        if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault()
+          onOpen()
+        }
+      }}
     >
       <div style={styles.rowInfo}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span style={styles.spaceName}>{space.name}</span>
           {running && <span style={styles.runningBadge}>running</span>}
         </div>
-        <div style={hovered ? { ...styles.spaceDir, color: 'var(--text-secondary)' } : styles.spaceDir}>{space.directory}</div>
+        <div className="space-dir" style={styles.spaceDir}>{space.directory}</div>
       </div>
       {running && (
-        <button style={styles.stopBtn} onClick={onClose}>
+        <button className="btn-danger" style={rowBtnSize} onClick={onClose}>
           Close
         </button>
       )}
-      <button style={styles.removeBtn} onClick={onRemove}>
+      <button className="btn-secondary" style={rowBtnSize} onClick={onRemove}>
         Remove
       </button>
     </div>

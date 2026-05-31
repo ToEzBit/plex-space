@@ -61,10 +61,131 @@ body,
   outline-offset: 2px;
 }
 
+/* -- Buttons -------------------------------------------------------------- */
+
+button {
+  cursor: pointer;
+  transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out,
+    transform 100ms ease-out;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  color: var(--on-accent);
+  font-weight: 600;
+}
+.btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+.btn-primary:active:not(:disabled) { background: var(--accent-active); }
+.btn-primary:disabled {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+}
+.btn-secondary:hover {
+  background: var(--elevated);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  color: var(--danger);
+}
+.btn-danger:hover {
+  background: rgba(255, 107, 122, 0.08);
+}
+
+/* -- Wizard option picker ------------------------------------------------- */
+
+.btn-option {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.btn-option:hover:not([data-selected='true']) {
+  background: var(--elevated);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.btn-option[data-selected='true'] {
+  background: var(--elevated);
+  border-color: var(--accent);
+  color: var(--text);
+}
+.btn-option[data-selected='true']:active {
+  transform: none;
+}
+
+/* -- Space list row ------------------------------------------------------- */
+
+.space-row {
+  background: var(--surface);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: background 150ms ease-out, border-color 150ms ease-out;
+  cursor: pointer;
+}
+.space-row:hover {
+  background: var(--elevated);
+  border-color: var(--border-strong);
+}
+.space-row:hover .space-dir {
+  color: var(--text-secondary);
+}
+
+/* -- Empty state ---------------------------------------------------------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  gap: 8px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.empty-state-glyph {
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 4px;
+  opacity: 0.35;
+  user-select: none;
+}
+.empty-state-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.empty-state-sub {
+  font-size: 12px;
+}
+
+/* -- Reduced motion ------------------------------------------------------- */
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
+    animation: none !important;
     transition: none !important;
+    transform: none !important;
   }
 }

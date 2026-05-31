@@ -4,13 +4,7 @@ import { layoutGeometry } from './layoutGeometry'
 import NewSpaceWizard, { type SpaceConfig } from './NewSpaceWizard'
 import SpaceList from './SpaceList'
 
-const btnBase = {
-  background: 'transparent',
-  borderRadius: 4,
-  padding: '3px 10px',
-  fontSize: 12,
-  cursor: 'pointer'
-}
+const topBarBtnSize = { padding: '3px 10px', fontSize: 12 }
 
 const styles = {
   topBar: {
@@ -28,8 +22,6 @@ const styles = {
     color: 'var(--text)',
     fontWeight: 500
   },
-  closeBtn: { ...btnBase, border: '1px solid var(--danger)', color: 'var(--danger)' },
-  listBtn: { ...btnBase, border: '1px solid var(--border)', color: 'var(--text-secondary)' },
   paneArea: {
     flex: 1,
     background: 'var(--bg)',
@@ -131,10 +123,10 @@ function App(): React.JSX.Element {
             <div style={styles.topBar}>
               <span style={styles.spaceName}>{config.name}</span>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => handleCloseSpace(spaceId)} style={styles.closeBtn}>
+                <button className="btn-danger" style={topBarBtnSize} onClick={() => handleCloseSpace(spaceId)}>
                   Close Space
                 </button>
-                <button onClick={() => setView('list')} style={styles.listBtn}>
+                <button className="btn-secondary" style={topBarBtnSize} onClick={() => setView('list')}>
                   Space List
                 </button>
               </div>

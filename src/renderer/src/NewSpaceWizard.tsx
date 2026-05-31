@@ -58,7 +58,6 @@ const styles = {
   } as React.CSSProperties,
   input: {
     width: '100%',
-    boxSizing: 'border-box' as const,
     background: 'var(--bg)',
     border: '1px solid var(--border)',
     borderRadius: 6,
@@ -78,84 +77,16 @@ const styles = {
     padding: '7px 10px',
     fontSize: 13
   } as React.CSSProperties,
-  browseBtn: {
-    background: 'var(--elevated)',
-    border: '1px solid var(--border)',
-    borderRadius: 6,
-    color: 'var(--text-secondary)',
-    padding: '7px 14px',
-    fontSize: 13,
-    cursor: 'pointer',
-    whiteSpace: 'nowrap' as const,
-    transition: '150ms ease-out'
-  } as React.CSSProperties,
-  browseBtnHov: { border: '1px solid var(--border-strong)', color: 'var(--text)' } as React.CSSProperties,
   optionGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: 8,
     marginBottom: 16
   } as React.CSSProperties,
-  optionBtn: {
-    background: 'var(--bg)',
-    border: '1px solid var(--border)',
-    borderRadius: 6,
-    color: 'var(--text-secondary)',
-    padding: '10px',
-    fontSize: 13,
-    cursor: 'pointer',
-    textAlign: 'center' as const,
-    transition: '150ms ease-out'
-  } as React.CSSProperties,
-  optionBtnHov: {
-    background: 'var(--elevated)',
-    border: '1px solid var(--border-strong)',
-    color: 'var(--text)'
-  } as React.CSSProperties,
-  // delta: only the 3 properties that differ from optionBtn
-  optionBtnSel: {
-    background: 'var(--elevated)',
-    border: '1px solid var(--accent)',
-    color: 'var(--text)'
-  } as React.CSSProperties,
   footer: {
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: 24
-  } as React.CSSProperties,
-  backBtn: {
-    background: 'transparent',
-    border: '1px solid var(--border)',
-    borderRadius: 6,
-    color: 'var(--text-secondary)',
-    padding: '8px 20px',
-    fontSize: 13,
-    cursor: 'pointer',
-    transition: '150ms ease-out'
-  } as React.CSSProperties,
-  backBtnHov: {
-    background: 'var(--elevated)',
-    border: '1px solid var(--border-strong)',
-    color: 'var(--text)'
-  } as React.CSSProperties,
-  nextBtn: {
-    background: 'var(--accent)',
-    border: 'none',
-    borderRadius: 6,
-    color: 'var(--on-accent)',
-    padding: '8px 24px',
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: '150ms ease-out'
-  } as React.CSSProperties,
-  nextBtnHov: { background: 'var(--accent-hover)' } as React.CSSProperties,
-  // delta: only the 4 properties that differ from nextBtn
-  nextBtnDis: {
-    background: 'var(--elevated)',
-    border: '1px solid var(--border)',
-    color: 'var(--text-muted)',
-    cursor: 'not-allowed'
   } as React.CSSProperties,
   notInstalledBadge: {
     display: 'inline-block',
@@ -166,23 +97,6 @@ const styles = {
     borderRadius: 3,
     padding: '1px 6px'
   } as React.CSSProperties
-}
-
-// Pre-computed merged style objects — stable references so React avoids
-// redundant DOM style patches on every re-render while a button is hovered.
-const merged = {
-  browseHov: { ...styles.browseBtn, ...styles.browseBtnHov },
-  backHov:   { ...styles.backBtn,   ...styles.backBtnHov   },
-  nextHov:   { ...styles.nextBtn,   ...styles.nextBtnHov   },
-  nextDis:   { ...styles.nextBtn,   ...styles.nextBtnDis   },
-  optHov:    { ...styles.optionBtn, ...styles.optionBtnHov },
-  optSel:    { ...styles.optionBtn, ...styles.optionBtnSel },
-} as Record<string, React.CSSProperties>
-
-function optionStyle(selected: boolean, key: string, hovered: string | null): React.CSSProperties {
-  if (selected) return merged.optSel
-  if (hovered === key) return merged.optHov
-  return styles.optionBtn
 }
 
 export default function NewSpaceWizard({
@@ -203,7 +117,6 @@ export default function NewSpaceWizard({
   const [layout, setLayout] = useState<Layout>(initialLayout)
   const [agentCommand, setAgentCommand] = useState(initialAgent)
   const [availability, setAvailability] = useState<Record<string, boolean>>({})
-  const [hovered, setHovered] = useState<string | null>(null)
 
   useEffect(() => {
     Promise.all(
@@ -252,10 +165,9 @@ export default function NewSpaceWizard({
                 placeholder="Choose a folder..."
               />
               <button
-                style={hovered === 'browse' ? merged.browseHov : styles.browseBtn}
+                className="btn-secondary"
+                style={{ padding: '7px 14px', fontSize: 13, whiteSpace: 'nowrap' }}
                 onClick={handleBrowse}
-                onMouseEnter={() => setHovered('browse')}
-                onMouseLeave={() => setHovered(null)}
               >
                 Browse
               </button>
@@ -274,20 +186,17 @@ export default function NewSpaceWizard({
           <>
             <label style={styles.label}>Layout</label>
             <div style={styles.optionGrid}>
-              {LAYOUTS.map(({ value, label }) => {
-                const key = String(value)
-                return (
-                  <button
-                    key={value}
-                    style={optionStyle(layout === value, key, hovered)}
-                    onClick={() => setLayout(value)}
-                    onMouseEnter={() => setHovered(key)}
-                    onMouseLeave={() => setHovered(null)}
-                  >
-                    {label}
-                  </button>
-                )
-              })}
+              {LAYOUTS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  className="btn-option"
+                  style={{ padding: '10px', fontSize: 13, textAlign: 'center' }}
+                  data-selected={layout === value}
+                  onClick={() => setLayout(value)}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </>
         )}
@@ -299,10 +208,10 @@ export default function NewSpaceWizard({
               {AGENTS.map(({ command, label }) => (
                 <button
                   key={command}
-                  style={optionStyle(agentCommand === command, command, hovered)}
+                  className="btn-option"
+                  style={{ padding: '10px', fontSize: 13, textAlign: 'center' }}
+                  data-selected={agentCommand === command}
                   onClick={() => setAgentCommand(command)}
-                  onMouseEnter={() => setHovered(command)}
-                  onMouseLeave={() => setHovered(null)}
                 >
                   <div>{label}</div>
                   {availability[command] === false && (
@@ -316,19 +225,17 @@ export default function NewSpaceWizard({
 
         <div style={styles.footer}>
           <button
-            style={hovered === 'back' ? merged.backHov : styles.backBtn}
+            className="btn-secondary"
+            style={{ padding: '8px 20px', fontSize: 13 }}
             onClick={() => (isFirstStep ? onCancel?.() : setStep((s) => s - 1))}
-            onMouseEnter={() => setHovered('back')}
-            onMouseLeave={() => setHovered(null)}
           >
             {isFirstStep ? 'Cancel' : 'Back'}
           </button>
           <button
-            style={nextDisabled ? merged.nextDis : hovered === 'next' ? merged.nextHov : styles.nextBtn}
+            className="btn-primary"
+            style={{ padding: '8px 24px', fontSize: 13 }}
             disabled={nextDisabled}
             onClick={isLastStep ? handleLaunch : () => setStep((s) => s + 1)}
-            onMouseEnter={() => setHovered('next')}
-            onMouseLeave={() => setHovered(null)}
           >
             {isLastStep ? 'Launch' : 'Next'}
           </button>
