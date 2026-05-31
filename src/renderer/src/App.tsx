@@ -4,6 +4,42 @@ import { layoutGeometry } from './layoutGeometry'
 import NewSpaceWizard, { type SpaceConfig } from './NewSpaceWizard'
 import SpaceList from './SpaceList'
 
+const _btn = {
+  background: 'transparent',
+  borderRadius: 4,
+  padding: '3px 10px',
+  fontSize: 12,
+  cursor: 'pointer'
+}
+
+const styles = {
+  topBar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '6px 12px',
+    background: 'var(--surface)',
+    borderBottom: '1px solid var(--border)',
+    color: 'var(--text-secondary)',
+    fontSize: 13,
+    flexShrink: 0
+  },
+  spaceName: {
+    color: 'var(--text)',
+    fontWeight: 500
+  },
+  closeBtn: { ..._btn, border: '1px solid var(--danger)', color: 'var(--danger)' },
+  listBtn: { ..._btn, border: '1px solid var(--border)', color: 'var(--text-secondary)' },
+  paneArea: {
+    flex: 1,
+    background: 'var(--bg)',
+    display: 'grid',
+    gap: '2px',
+    padding: '4px',
+    boxSizing: 'border-box' as const
+  }
+}
+
 type View = 'list' | 'new-wizard' | 'open-wizard' | 'grid'
 
 interface OpenSpaceEntry {
@@ -91,68 +127,24 @@ function App(): React.JSX.Element {
         return (
           <div
             key={spaceId}
-            style={{
-              display: isActive ? 'flex' : 'none',
-              flexDirection: 'column',
-              width: '100vw',
-              height: '100vh'
-            }}
+            style={{ display: isActive ? 'flex' : 'none', flexDirection: 'column', width: '100vw', height: '100vh' }}
           >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '6px 12px',
-                background: '#181818',
-                borderBottom: '1px solid #333',
-                color: '#aaa',
-                fontSize: 13,
-                flexShrink: 0
-              }}
-            >
-              <span>{config.name}</span>
+            <div style={styles.topBar}>
+              <span style={styles.spaceName}>{config.name}</span>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  onClick={() => handleCloseSpace(spaceId)}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid #c0392b',
-                    borderRadius: 4,
-                    color: '#e74c3c',
-                    padding: '3px 10px',
-                    fontSize: 12,
-                    cursor: 'pointer'
-                  }}
-                >
+                <button onClick={() => handleCloseSpace(spaceId)} style={styles.closeBtn}>
                   Close Space
                 </button>
-                <button
-                  onClick={() => setView('list')}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid #444',
-                    borderRadius: 4,
-                    color: '#aaa',
-                    padding: '3px 10px',
-                    fontSize: 12,
-                    cursor: 'pointer'
-                  }}
-                >
+                <button onClick={() => setView('list')} style={styles.listBtn}>
                   Space List
                 </button>
               </div>
             </div>
             <div
               style={{
-                flex: 1,
-                background: '#1e1e1e',
-                display: 'grid',
+                ...styles.paneArea,
                 gridTemplateColumns: `repeat(${cols}, 1fr)`,
-                gridTemplateRows: `repeat(${rows}, 1fr)`,
-                gap: '2px',
-                padding: '4px',
-                boxSizing: 'border-box'
+                gridTemplateRows: `repeat(${rows}, 1fr)`
               }}
             >
               {terminalIds.map((terminalId) => (

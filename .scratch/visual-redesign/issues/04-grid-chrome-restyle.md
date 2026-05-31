@@ -1,6 +1,6 @@
 # Grid chrome restyle
 
-Status: ready-for-agent
+Status: done
 
 ## What to build
 
@@ -16,10 +16,10 @@ See `docs/design-system.md`.
 
 ## Acceptance criteria
 
-- [ ] The grid top bar renders in the Visual System with no hard-coded hex literals
-- [ ] "Close Space" uses the danger token; "Space List" reads as a secondary action
-- [ ] The layout grid background and pane gaps use tokens
-- [ ] Applies across all layouts (1/2/4/6)
+- [x] The grid top bar renders in the Visual System with no hard-coded hex literals
+- [x] "Close Space" uses the danger token; "Space List" reads as a secondary action
+- [x] The layout grid background and pane gaps use tokens
+- [x] Applies across all layouts (1/2/4/6)
 
 ## Blocked by
 
