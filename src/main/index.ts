@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join } from 'path'
+import { join, basename } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import * as pty from 'node-pty'
 import { buildLaunchPlan } from './launchPlan'
@@ -52,7 +52,7 @@ app.whenReady().then(() => {
       const result = await dialog.showOpenDialog({ properties: ['openDirectory'] })
       if (result.canceled || result.filePaths.length === 0) return null
       const filePath = result.filePaths[0]
-      const name = filePath.split('/').pop() ?? filePath
+      const name = basename(filePath)
       return { path: filePath, name }
     }
   )

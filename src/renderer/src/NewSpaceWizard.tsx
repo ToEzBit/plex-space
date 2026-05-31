@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Layout } from './layoutGeometry'
+import type { Layout } from '../../shared/layout'
 
 export interface SpaceConfig {
   name: string
@@ -81,16 +81,26 @@ const styles = {
     gap: 8,
     marginBottom: 16
   } as React.CSSProperties,
-  optionBtn: (selected: boolean): React.CSSProperties => ({
-    background: selected ? '#0066cc' : '#1e1e1e',
-    border: `1px solid ${selected ? '#0066cc' : '#444'}`,
+  optionBtn: {
+    background: '#1e1e1e',
+    border: '1px solid #444',
     borderRadius: 4,
-    color: selected ? '#fff' : '#ccc',
+    color: '#ccc',
     padding: '10px',
     fontSize: 14,
     cursor: 'pointer',
     textAlign: 'center'
-  }),
+  } as React.CSSProperties,
+  optionBtnSelected: {
+    background: '#0066cc',
+    border: '1px solid #0066cc',
+    borderRadius: 4,
+    color: '#fff',
+    padding: '10px',
+    fontSize: 14,
+    cursor: 'pointer',
+    textAlign: 'center'
+  } as React.CSSProperties,
   footer: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -105,19 +115,28 @@ const styles = {
     fontSize: 14,
     cursor: 'pointer'
   } as React.CSSProperties,
-  nextBtn: (disabled: boolean): React.CSSProperties => ({
-    background: disabled ? '#333' : '#0066cc',
+  nextBtn: {
+    background: '#0066cc',
     border: 'none',
     borderRadius: 4,
-    color: disabled ? '#666' : '#fff',
+    color: '#fff',
     padding: '8px 24px',
     fontSize: 14,
-    cursor: disabled ? 'not-allowed' : 'pointer'
-  })
+    cursor: 'pointer'
+  } as React.CSSProperties,
+  nextBtnDisabled: {
+    background: '#333',
+    border: 'none',
+    borderRadius: 4,
+    color: '#666',
+    padding: '8px 24px',
+    fontSize: 14,
+    cursor: 'not-allowed'
+  } as React.CSSProperties
 }
 
 export default function NewSpaceWizard({ onLaunch }: Props): React.JSX.Element {
-  const [step, setStep] = useState<1 | 2 | 3>(1)
+  const [step, setStep] = useState(1)
   const [cwd, setCwd] = useState('')
   const [name, setName] = useState('')
   const [layout, setLayout] = useState<Layout>(4)
@@ -174,7 +193,7 @@ export default function NewSpaceWizard({ onLaunch }: Props): React.JSX.Element {
               {LAYOUTS.map(({ value, label }) => (
                 <button
                   key={value}
-                  style={styles.optionBtn(layout === value)}
+                  style={layout === value ? styles.optionBtnSelected : styles.optionBtn}
                   onClick={() => setLayout(value)}
                 >
                   {label}
@@ -191,7 +210,7 @@ export default function NewSpaceWizard({ onLaunch }: Props): React.JSX.Element {
               {AGENTS.map(({ command, label }) => (
                 <button
                   key={command}
-                  style={styles.optionBtn(agentCommand === command)}
+                  style={agentCommand === command ? styles.optionBtnSelected : styles.optionBtn}
                   onClick={() => setAgentCommand(command)}
                 >
                   {label}
@@ -203,21 +222,21 @@ export default function NewSpaceWizard({ onLaunch }: Props): React.JSX.Element {
 
         <div style={styles.footer}>
           <button
-            style={{ ...styles.backBtn, visibility: step === 1 ? 'hidden' : 'visible' }}
-            onClick={() => setStep((s) => (s - 1) as 1 | 2 | 3)}
+            style={{ ...styles.backBtn, visibility: step === 1 ? 'hidden' : undefined }}
+            onClick={() => setStep((s) => s - 1)}
           >
             Back
           </button>
           {step < 3 ? (
             <button
-              style={styles.nextBtn(step === 1 && !cwd)}
+              style={step === 1 && !cwd ? styles.nextBtnDisabled : styles.nextBtn}
               disabled={step === 1 && !cwd}
-              onClick={() => setStep((s) => (s + 1) as 2 | 3)}
+              onClick={() => setStep((s) => s + 1)}
             >
               Next
             </button>
           ) : (
-            <button style={styles.nextBtn(false)} onClick={handleLaunch}>
+            <button style={styles.nextBtn} onClick={handleLaunch}>
               Launch
             </button>
           )}
