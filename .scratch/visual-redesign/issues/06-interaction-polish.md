@@ -1,6 +1,6 @@
 # Interaction polish pass
 
-Status: ready-for-agent
+Status: done
 
 ## What to build
 
@@ -14,10 +14,10 @@ See the Effects section of `docs/design-system.md`.
 
 ## Acceptance criteria
 
-- [ ] Interactive elements have consistent hover/active states and a visible accent focus ring on keyboard focus
-- [ ] State changes animate at ~150ms ease-out
-- [ ] `prefers-reduced-motion` is respected (motion reduced or disabled)
-- [ ] The empty state is polished and on-system
+- [x] Interactive elements have consistent hover/active states and a visible accent focus ring on keyboard focus
+- [x] State changes animate at ~150ms ease-out
+- [x] `prefers-reduced-motion` is respected (motion reduced or disabled)
+- [x] The empty state is polished and on-system
 
 ## Blocked by
 
