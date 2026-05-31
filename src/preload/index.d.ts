@@ -2,10 +2,8 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 import type { Layout } from '../shared/layout'
 
 interface TerminalAPI {
-  create: (terminalId: string, cwd: string, agentCommand: string) => Promise<void>
   input: (terminalId: string, data: string) => void
   resize: (terminalId: string, cols: number, rows: number) => void
-  destroy: (terminalId: string) => void
   onData: (handler: (terminalId: string, data: string) => void) => () => void
 }
 
@@ -17,6 +15,13 @@ interface SpaceAPI {
   removeSpace: (id: string) => Promise<void>
   getLastUsed: () => Promise<LastUsed | null>
   setLastUsed: (lastUsed: LastUsed) => Promise<void>
+  openGrid: (
+    spaceId: string,
+    cwd: string,
+    layout: Layout,
+    agentCommand: string
+  ) => Promise<{ terminalIds: string[]; isNew: boolean }>
+  closeGrid: (spaceId: string) => Promise<void>
 }
 
 declare global {

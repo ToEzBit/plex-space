@@ -3,13 +3,10 @@ import { electronAPI } from '@electron-toolkit/preload'
 import type { Layout } from '../shared/layout'
 
 const terminalAPI = {
-  create: (terminalId: string, cwd: string, agentCommand: string): Promise<void> =>
-    ipcRenderer.invoke('terminal:create', terminalId, cwd, agentCommand),
   input: (terminalId: string, data: string): void =>
     ipcRenderer.send('terminal:input', terminalId, data),
   resize: (terminalId: string, cols: number, rows: number): void =>
     ipcRenderer.send('terminal:resize', terminalId, cols, rows),
-  destroy: (terminalId: string): void => ipcRenderer.send('terminal:destroy', terminalId),
   onData: (handler: (terminalId: string, data: string) => void): (() => void) => {
     const listener = (_: Electron.IpcRendererEvent, terminalId: string, data: string): void =>
       handler(terminalId, data)
@@ -33,7 +30,15 @@ const spaceAPI = {
   getLastUsed: (): Promise<{ layout: Layout; agent: string } | null> =>
     ipcRenderer.invoke('space:getLastUsed'),
   setLastUsed: (lastUsed: { layout: Layout; agent: string }): Promise<void> =>
-    ipcRenderer.invoke('space:setLastUsed', lastUsed)
+    ipcRenderer.invoke('space:setLastUsed', lastUsed),
+  openGrid: (
+    spaceId: string,
+    cwd: string,
+    layout: Layout,
+    agentCommand: string
+  ): Promise<{ terminalIds: string[]; isNew: boolean }> =>
+    ipcRenderer.invoke('space:openGrid', spaceId, cwd, layout, agentCommand),
+  closeGrid: (spaceId: string): Promise<void> => ipcRenderer.invoke('space:closeGrid', spaceId)
 }
 
 try {

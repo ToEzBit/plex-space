@@ -5,17 +5,53 @@ import * as pty from 'node-pty'
 import { buildLaunchPlan } from './launchPlan'
 import { isInstalled } from './agentAvailability'
 import { SpaceStore, JsonFileBackend, type Space, type LastUsed } from './spaceStore'
+import { SpacePool, type TerminalSpawner } from './spacePool'
 
 interface TerminalEntry {
   pty: pty.IPty
   sendTimer?: ReturnType<typeof setTimeout>
-  spaceId?: string
 }
 
 const terminals = new Map<string, TerminalEntry>()
+let mainWindow: BrowserWindow | null = null
+
+function spawnPty(terminalId: string, cwd: string, agentCommand: string): void {
+  const shell = process.env.SHELL || '/bin/zsh'
+  const plan = buildLaunchPlan(shell, agentCommand)
+
+  const ptyProcess = pty.spawn(plan.spawnFile, plan.spawnArgs, {
+    name: 'xterm-256color',
+    cwd,
+    env: process.env as Record<string, string>,
+    cols: 80,
+    rows: 24
+  })
+
+  ptyProcess.onData((data) => {
+    mainWindow?.webContents.send('terminal:data', terminalId, data)
+  })
+
+  const sendTimer = setTimeout(() => {
+    ptyProcess.write(plan.sendSequence)
+  }, plan.sendDelayMs)
+
+  terminals.set(terminalId, { pty: ptyProcess, sendTimer })
+}
+
+function killPty(terminalId: string): void {
+  const entry = terminals.get(terminalId)
+  if (entry) {
+    clearTimeout(entry.sendTimer)
+    entry.pty.kill()
+    terminals.delete(terminalId)
+  }
+}
+
+const ptySpawner: TerminalSpawner = { spawn: spawnPty, kill: killPty }
+const spacePool = new SpacePool(ptySpawner)
 
 function createWindow(): void {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     show: false,
@@ -76,31 +112,21 @@ app.whenReady().then(() => {
   )
 
   ipcMain.handle(
-    'terminal:create',
-    (event, terminalId: string, cwd: string, agentCommand: string) => {
-      const shell = process.env.SHELL || '/bin/zsh'
-      const plan = buildLaunchPlan(shell, agentCommand)
-
-      const ptyProcess = pty.spawn(plan.spawnFile, plan.spawnArgs, {
-        name: 'xterm-256color',
-        cwd,
-        env: process.env as Record<string, string>,
-        cols: 80,
-        rows: 24
-      })
-
-      const win = BrowserWindow.fromWebContents(event.sender)
-      ptyProcess.onData((data) => {
-        win?.webContents.send('terminal:data', terminalId, data)
-      })
-
-      const sendTimer = setTimeout(() => {
-        ptyProcess.write(plan.sendSequence)
-      }, plan.sendDelayMs)
-
-      terminals.set(terminalId, { pty: ptyProcess, sendTimer })
+    'space:openGrid',
+    (
+      _,
+      spaceId: string,
+      cwd: string,
+      layout: number,
+      agentCommand: string
+    ): { terminalIds: string[]; isNew: boolean } => {
+      return spacePool.open(spaceId, cwd, layout, agentCommand)
     }
   )
+
+  ipcMain.handle('space:closeGrid', (_, spaceId: string): void => {
+    spacePool.close(spaceId)
+  })
 
   ipcMain.on('terminal:input', (_, terminalId: string, data: string) => {
     terminals.get(terminalId)?.pty.write(data)
@@ -110,20 +136,15 @@ app.whenReady().then(() => {
     terminals.get(terminalId)?.pty.resize(cols, rows)
   })
 
-  ipcMain.on('terminal:destroy', (_, terminalId: string) => {
-    const entry = terminals.get(terminalId)
-    if (entry) {
-      clearTimeout(entry.sendTimer)
-      entry.pty.kill()
-      terminals.delete(terminalId)
-    }
-  })
-
   createWindow()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+})
+
+app.on('before-quit', () => {
+  spacePool.closeAll()
 })
 
 app.on('window-all-closed', () => {

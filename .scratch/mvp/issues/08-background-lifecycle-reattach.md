@@ -1,6 +1,6 @@
 # Background lifecycle + re-attach
 
-Status: ready-for-agent
+Status: done
 
 ## Parent
 
@@ -12,11 +12,11 @@ Introduce the **Space pool / lifecycle** in the main process (ADR-0003): it trac
 
 ## Acceptance criteria
 
-- [ ] The Space pool tracks open Spaces and their Terminals in the main process.
-- [ ] Unit tests (Vitest) with a fake spawner cover: opening an already-open Space re-attaches (no second spawn), plus the pool's open/closed bookkeeping.
-- [ ] Opening Space A, returning to the list, and opening Space B leaves A's Terminals running.
-- [ ] The Space list shows a "running" indicator on currently-open Spaces.
-- [ ] Clicking a running Space returns to its existing live Terminals (state preserved), not a fresh grid.
+- [x] The Space pool tracks open Spaces and their Terminals in the main process.
+- [x] Unit tests (Vitest) with a fake spawner cover: opening an already-open Space re-attaches (no second spawn), plus the pool's open/closed bookkeeping.
+- [x] Opening Space A, returning to the list, and opening Space B leaves A's Terminals running.
+- [x] The Space list shows a "running" indicator on currently-open Spaces.
+- [x] Clicking a running Space returns to its existing live Terminals (state preserved), not a fresh grid.
 
 ## Blocked by
 

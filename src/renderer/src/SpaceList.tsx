@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 interface Props {
   spaces: Space[]
+  openSpaceIds: Set<string>
   onNewSpace: () => void
   onOpenSpace: (space: Space) => void
   onRemoveSpace: (id: string) => void
@@ -79,11 +80,21 @@ const styles = {
     cursor: 'pointer',
     marginLeft: 12,
     flexShrink: 0
+  },
+  runningBadge: {
+    fontSize: 11,
+    color: '#4caf50',
+    border: '1px solid #4caf50',
+    borderRadius: 10,
+    padding: '2px 7px',
+    marginLeft: 8,
+    flexShrink: 0
   }
 }
 
 export default function SpaceList({
   spaces,
+  openSpaceIds,
   onNewSpace,
   onOpenSpace,
   onRemoveSpace
@@ -104,6 +115,7 @@ export default function SpaceList({
             <SpaceRow
               key={space.id}
               space={space}
+              running={openSpaceIds.has(space.id)}
               onOpen={() => onOpenSpace(space)}
               onRemove={(e) => {
                 e.stopPropagation()
@@ -119,10 +131,12 @@ export default function SpaceList({
 
 function SpaceRow({
   space,
+  running,
   onOpen,
   onRemove
 }: {
   space: Space
+  running: boolean
   onOpen: () => void
   onRemove: (e: React.MouseEvent) => void
 }): React.JSX.Element {
@@ -135,7 +149,10 @@ function SpaceRow({
       onMouseLeave={() => setHovered(false)}
     >
       <div style={styles.rowInfo}>
-        <div style={styles.spaceName}>{space.name}</div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span style={styles.spaceName}>{space.name}</span>
+          {running && <span style={styles.runningBadge}>running</span>}
+        </div>
         <div style={styles.spaceDir}>{space.directory}</div>
       </div>
       <button style={styles.removeBtn} onClick={onRemove}>

@@ -5,18 +5,22 @@ import '@xterm/xterm/css/xterm.css'
 
 interface Props {
   terminalId: string
-  cwd: string
-  agentCommand: string
+  visible: boolean
 }
 
-function PaneTerminal({ terminalId, cwd, agentCommand }: Props): React.JSX.Element {
+function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
+  const termRef = useRef<Terminal | null>(null)
+  const fitAddonRef = useRef<FitAddon | null>(null)
 
   useEffect(() => {
     if (!containerRef.current) return
 
     const term = new Terminal({ cursorBlink: true, fontSize: 14 })
     const fitAddon = new FitAddon()
+    termRef.current = term
+    fitAddonRef.current = fitAddon
+
     term.loadAddon(fitAddon)
     term.open(containerRef.current)
     fitAddon.fit()
@@ -27,15 +31,15 @@ function PaneTerminal({ terminalId, cwd, agentCommand }: Props): React.JSX.Eleme
 
     const dataDisposable = term.onData((data) => window.terminalAPI.input(terminalId, data))
 
-    window.terminalAPI.create(terminalId, cwd, agentCommand)
-
     const el = containerRef.current
     let rafId = 0
     const ro = new ResizeObserver(() => {
       cancelAnimationFrame(rafId)
       rafId = requestAnimationFrame(() => {
-        fitAddon.fit()
-        window.terminalAPI.resize(terminalId, term.cols, term.rows)
+        if (el.offsetWidth > 0 && el.offsetHeight > 0) {
+          fitAddon.fit()
+          window.terminalAPI.resize(terminalId, term.cols, term.rows)
+        }
       })
     })
     ro.observe(el)
@@ -45,10 +49,23 @@ function PaneTerminal({ terminalId, cwd, agentCommand }: Props): React.JSX.Eleme
       removeDataListener()
       dataDisposable.dispose()
       ro.disconnect()
-      window.terminalAPI.destroy(terminalId)
       term.dispose()
+      termRef.current = null
+      fitAddonRef.current = null
     }
   }, [terminalId])
+
+  useEffect(() => {
+    if (!visible) return
+    requestAnimationFrame(() => {
+      const fit = fitAddonRef.current
+      const term = termRef.current
+      if (fit && term) {
+        fit.fit()
+        window.terminalAPI.resize(terminalId, term.cols, term.rows)
+      }
+    })
+  }, [visible, terminalId])
 
   return <div ref={containerRef} style={{ width: '100%', height: '100%', overflow: 'hidden' }} />
 }
