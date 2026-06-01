@@ -30,13 +30,21 @@ const XTERM_THEME = {
 interface Props {
   terminalId: string
   visible: boolean
+  isDragging?: boolean
+  refitTrigger?: number
 }
 
-function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
+function PaneTerminal({ terminalId, visible, isDragging, refitTrigger }: Props): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
   const termRef = useRef<Terminal | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
+  const isDraggingRef = useRef(false)
+  const lastSizeRef = useRef<{ cols: number; rows: number } | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
+
+  useEffect(() => {
+    isDraggingRef.current = isDragging ?? false
+  }, [isDragging])
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault()
@@ -104,9 +112,15 @@ function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
     const ro = new ResizeObserver(() => {
       cancelAnimationFrame(rafId)
       rafId = requestAnimationFrame(() => {
+        if (isDraggingRef.current) return
         if (el.offsetWidth > 0 && el.offsetHeight > 0) {
           fitAddon.fit()
-          window.terminalAPI.resize(terminalId, term.cols, term.rows)
+          const { cols, rows } = term
+          const last = lastSizeRef.current
+          if (!last || last.cols !== cols || last.rows !== rows) {
+            lastSizeRef.current = { cols, rows }
+            window.terminalAPI.resize(terminalId, cols, rows)
+          }
         }
       })
     })
@@ -131,10 +145,32 @@ function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
       const term = termRef.current
       if (fit && term) {
         fit.fit()
-        window.terminalAPI.resize(terminalId, term.cols, term.rows)
+        const { cols, rows } = term
+        const last = lastSizeRef.current
+        if (!last || last.cols !== cols || last.rows !== rows) {
+          lastSizeRef.current = { cols, rows }
+          window.terminalAPI.resize(terminalId, cols, rows)
+        }
       }
     })
   }, [visible, terminalId])
+
+  useEffect(() => {
+    if (!refitTrigger) return
+    requestAnimationFrame(() => {
+      const fit = fitAddonRef.current
+      const term = termRef.current
+      if (fit && term) {
+        fit.fit()
+        const { cols, rows } = term
+        const last = lastSizeRef.current
+        if (!last || last.cols !== cols || last.rows !== rows) {
+          lastSizeRef.current = { cols, rows }
+          window.terminalAPI.resize(terminalId, cols, rows)
+        }
+      }
+    })
+  }, [refitTrigger, terminalId])
 
   return (
     <div

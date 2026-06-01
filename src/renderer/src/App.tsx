@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import PaneTerminal from './PaneTerminal'
 import PaneHeader from './PaneHeader'
+import { TwoPaneLayout } from './TwoPaneLayout'
 import { layoutGeometry } from './layoutGeometry'
 import NewSpaceWizard, { type SpaceConfig } from './NewSpaceWizard'
 import Sidebar from './Sidebar'
@@ -141,29 +142,36 @@ function App(): React.JSX.Element {
                 flexDirection: 'column'
               }}
             >
-              <div
-                style={{
-                  ...paneAreaStyle,
-                  gridTemplateColumns: `repeat(${cols}, 1fr)`,
-                  gridTemplateRows: `repeat(${rows}, 1fr)`
-                }}
-              >
-                {terminalIds.map((terminalId, i) => {
-                  const span = paneSpans?.[i]
-                  return (
-                    <div
-                      className="pane"
-                      key={terminalId}
-                      style={span && span > 1 ? { gridColumn: `span ${span}` } : undefined}
-                    >
-                      <PaneHeader index={i + 1} />
-                      <div className="pane-terminal">
-                        <PaneTerminal terminalId={terminalId} visible={isActive} />
+              {config.layout === 2 ? (
+                <TwoPaneLayout
+                  terminalIds={[terminalIds[0], terminalIds[1]]}
+                  visible={isActive}
+                />
+              ) : (
+                <div
+                  style={{
+                    ...paneAreaStyle,
+                    gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                    gridTemplateRows: `repeat(${rows}, 1fr)`
+                  }}
+                >
+                  {terminalIds.map((terminalId, i) => {
+                    const span = paneSpans?.[i]
+                    return (
+                      <div
+                        className="pane"
+                        key={terminalId}
+                        style={span && span > 1 ? { gridColumn: `span ${span}` } : undefined}
+                      >
+                        <PaneHeader index={i + 1} />
+                        <div className="pane-terminal">
+                          <PaneTerminal terminalId={terminalId} visible={isActive} />
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
-              </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           )
         })}
