@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import PaneTerminal from './PaneTerminal'
+import PaneHeader from './PaneHeader'
 import { mouseXToProportion, DIVIDER_PX } from './paneProportions'
 
 interface Props {
@@ -57,13 +58,16 @@ export function TwoPaneLayout({ terminalIds, visible }: Props): React.JSX.Elemen
         userSelect: isDragging ? 'none' : undefined
       }}
     >
-      <div style={{ flex: proportion, minWidth: 0, overflow: 'hidden' }}>
-        <PaneTerminal
-          terminalId={leftId}
-          visible={visible}
-          isDragging={isDragging}
-          refitTrigger={refitTrigger}
-        />
+      <div className="pane" style={{ flex: proportion, minWidth: 0 }}>
+        <PaneHeader index={1} />
+        <div className="pane-terminal">
+          <PaneTerminal
+            terminalId={leftId}
+            visible={visible}
+            isDragging={isDragging}
+            refitTrigger={refitTrigger}
+          />
+        </div>
       </div>
 
       <div
@@ -80,13 +84,16 @@ export function TwoPaneLayout({ terminalIds, visible }: Props): React.JSX.Elemen
         onDoubleClick={handleDividerDoubleClick}
       />
 
-      <div style={{ flex: 1 - proportion, minWidth: 0, overflow: 'hidden' }}>
-        <PaneTerminal
-          terminalId={rightId}
-          visible={visible}
-          isDragging={isDragging}
-          refitTrigger={refitTrigger}
-        />
+      <div className="pane" style={{ flex: 1 - proportion, minWidth: 0 }}>
+        <PaneHeader index={2} />
+        <div className="pane-terminal">
+          <PaneTerminal
+            terminalId={rightId}
+            visible={visible}
+            isDragging={isDragging}
+            refitTrigger={refitTrigger}
+          />
+        </div>
       </div>
     </div>
   )
