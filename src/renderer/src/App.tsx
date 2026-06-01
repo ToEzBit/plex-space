@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react'
 import PaneTerminal from './PaneTerminal'
 import PaneHeader from './PaneHeader'
 import { TwoPaneLayout } from './TwoPaneLayout'
+import { ThreePaneLayout } from './ThreePaneLayout'
+import { GridLayout } from './GridLayout'
 import { layoutGeometry } from './layoutGeometry'
 import NewSpaceWizard, { type SpaceConfig } from './NewSpaceWizard'
 import Sidebar from './Sidebar'
@@ -147,6 +149,15 @@ function App(): React.JSX.Element {
                   terminalIds={[terminalIds[0], terminalIds[1]]}
                   visible={isActive}
                 />
+              ) : config.layout === 3 ? (
+                <ThreePaneLayout
+                  terminalIds={[terminalIds[0], terminalIds[1], terminalIds[2]]}
+                  visible={isActive}
+                />
+              ) : config.layout === 4 ? (
+                <GridLayout cols={2} terminalIds={terminalIds} visible={isActive} />
+              ) : config.layout === 6 ? (
+                <GridLayout cols={3} terminalIds={terminalIds} visible={isActive} />
               ) : (
                 <div
                   style={{

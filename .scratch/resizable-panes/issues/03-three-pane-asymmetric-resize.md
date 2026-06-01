@@ -1,6 +1,6 @@
 # Resize for the 3-pane asymmetric Layout
 
-Status: ready-for-agent
+Status: done
 
 ## What to build
 
@@ -16,10 +16,10 @@ session-only sizes).
 
 ## Acceptance criteria
 
-- [ ] In a 3-pane Space, the horizontal divider resizes the top row against the bottom Pane
-- [ ] The top row's vertical divider resizes only the two top Panes; the bottom Pane stays full-width
-- [ ] Min-size clamp, refit-on-release, double-click reset, and session-only sizing all apply
-- [ ] Tests cover the 3-pane asymmetric topology
+- [x] In a 3-pane Space, the horizontal divider resizes the top row against the bottom Pane
+- [x] The top row's vertical divider resizes only the two top Panes; the bottom Pane stays full-width
+- [x] Min-size clamp, refit-on-release, double-click reset, and session-only sizing all apply
+- [x] Tests cover the 3-pane asymmetric topology (`splitsToFractions([])` edge case)
 
 ## Blocked by
 
