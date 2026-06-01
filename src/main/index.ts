@@ -2,53 +2,20 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join, basename } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import * as pty from 'node-pty'
-import { buildLaunchPlan } from './launchPlan'
 import { isInstalled } from './agentAvailability'
 import { SpaceStore, JsonFileBackend, type Space, type LastUsed } from './spaceStore'
-import { SpacePool, type TerminalSpawner } from './spacePool'
+import { SpacePool } from './spacePool'
+import { TerminalRegistry } from './terminalRegistry'
 
-interface TerminalEntry {
-  pty: pty.IPty
-  sendTimer?: ReturnType<typeof setTimeout>
-}
-
-const terminals = new Map<string, TerminalEntry>()
 let mainWindow: BrowserWindow | null = null
 
-function spawnPty(terminalId: string, cwd: string, agentCommand: string): void {
-  const shell = process.env.SHELL || '/bin/zsh'
-  const plan = buildLaunchPlan(shell, agentCommand)
-
-  const ptyProcess = pty.spawn(plan.spawnFile, plan.spawnArgs, {
-    name: 'xterm-256color',
-    cwd,
-    env: process.env as Record<string, string>,
-    cols: 80,
-    rows: 24
-  })
-
-  ptyProcess.onData((data) => {
-    mainWindow?.webContents.send('terminal:data', terminalId, data)
-  })
-
-  const sendTimer = setTimeout(() => {
-    ptyProcess.write(plan.sendSequence)
-  }, plan.sendDelayMs)
-
-  terminals.set(terminalId, { pty: ptyProcess, sendTimer })
-}
-
-function killPty(terminalId: string): void {
-  const entry = terminals.get(terminalId)
-  if (entry) {
-    clearTimeout(entry.sendTimer)
-    entry.pty.kill()
-    terminals.delete(terminalId)
-  }
-}
-
-const ptySpawner: TerminalSpawner = { spawn: spawnPty, kill: killPty }
-const spacePool = new SpacePool(ptySpawner)
+const registry = new TerminalRegistry({
+  spawnPty: (file, args, options) => pty.spawn(file, args, options),
+  shell: process.env.SHELL || '/bin/zsh',
+  env: process.env as Record<string, string>,
+  onData: (terminalId, data) => mainWindow?.webContents.send('terminal:data', terminalId, data)
+})
+const spacePool = new SpacePool(registry)
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -63,7 +30,7 @@ function createWindow(): void {
     }
   })
 
-  mainWindow.on('ready-to-show', () => mainWindow.show())
+  mainWindow.on('ready-to-show', () => mainWindow?.show())
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
@@ -129,11 +96,11 @@ app.whenReady().then(() => {
   })
 
   ipcMain.on('terminal:input', (_, terminalId: string, data: string) => {
-    terminals.get(terminalId)?.pty.write(data)
+    registry.input(terminalId, data)
   })
 
   ipcMain.on('terminal:resize', (_, terminalId: string, cols: number, rows: number) => {
-    terminals.get(terminalId)?.pty.resize(cols, rows)
+    registry.resize(terminalId, cols, rows)
   })
 
   createWindow()
