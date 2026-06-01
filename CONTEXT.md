@@ -9,8 +9,8 @@ A named, saved workspace bound to a single working directory — its name and di
 _Avoid_: workspace, project, folder, repo
 
 **Space list**:
-The app's home view: the list of saved Spaces, from which the user opens one or creates a new one. Spaces that are currently open are marked as running.
-_Avoid_: dashboard, home, projects
+The persistent sidebar panel that lists all saved Spaces — always visible alongside the active Space's Panes. The user opens, closes, and switches between Spaces from here without leaving the current view. Open Spaces are marked with a ring indicator. The Space list also contains the "New Space" action.
+_Avoid_: dashboard, home, projects, navigation panel
 
 **Layout**:
 The arrangement of Panes within an open Space. Selectable as 1, 2, 3, 4, or 6 panes. The 3-pane layout places two equal Panes on top and one full-width Pane on the bottom.

@@ -2,55 +2,48 @@ import { useState, useEffect } from 'react'
 import PaneTerminal from './PaneTerminal'
 import { layoutGeometry } from './layoutGeometry'
 import NewSpaceWizard, { type SpaceConfig } from './NewSpaceWizard'
-import SpaceList from './SpaceList'
+import Sidebar from './Sidebar'
 
-const topBarBtnSize = { padding: '3px 10px', fontSize: 12 }
-
-const styles = {
-  topBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '6px 12px',
-    background: 'var(--surface)',
-    borderBottom: '1px solid var(--border)',
-    color: 'var(--text-secondary)',
-    fontSize: 13,
-    flexShrink: 0
-  },
-  spaceName: {
-    color: 'var(--text)',
-    fontWeight: 500
-  },
-  paneArea: {
-    flex: 1,
-    background: 'var(--bg)',
-    display: 'grid',
-    gap: 0,
-    padding: '4px'
-  }
-}
-
-type View = 'list' | 'new-wizard' | 'open-wizard' | 'grid'
+type View = 'idle' | 'new-wizard' | 'open-wizard'
 
 interface OpenSpaceEntry {
   config: SpaceConfig
   terminalIds: string[]
 }
 
+const paneAreaStyle = {
+  flex: 1,
+  background: 'var(--bg)',
+  display: 'grid',
+  gap: 0,
+  padding: '4px'
+}
+
 function App(): React.JSX.Element {
-  const [view, setView] = useState<View>('list')
+  const [view, setView] = useState<View>('idle')
   const [spaces, setSpaces] = useState<Space[]>([])
   const [lastUsed, setLastUsedState] = useState<LastUsed | null>(null)
   const [pendingSpace, setPendingSpace] = useState<Space | null>(null)
   const [openSpaces, setOpenSpaces] = useState<Record<string, OpenSpaceEntry>>({})
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   useEffect(() => {
     Promise.all([window.spaceAPI.listSpaces(), window.spaceAPI.getLastUsed()]).then(([s, lu]) => {
       setSpaces(s)
       setLastUsedState(lu)
     })
+  }, [])
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent): void {
+      if (e.metaKey && e.key === 'b') {
+        e.preventDefault()
+        setSidebarOpen((prev) => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
   async function launchSpace(spaceId: string, config: SpaceConfig): Promise<void> {
@@ -65,7 +58,7 @@ function App(): React.JSX.Element {
     )
     setOpenSpaces((prev) => ({ ...prev, [spaceId]: { config, terminalIds } }))
     setActiveSpaceId(spaceId)
-    setView('grid')
+    setView('idle')
   }
 
   async function handleNewSpaceLaunch(config: SpaceConfig): Promise<void> {
@@ -79,10 +72,9 @@ function App(): React.JSX.Element {
     await launchSpace(pendingSpace.id, config)
   }
 
-  async function handleOpenSpace(space: Space): Promise<void> {
+  async function handleSelectSpace(space: Space): Promise<void> {
     if (openSpaces[space.id]) {
       setActiveSpaceId(space.id)
-      setView('grid')
     } else {
       setPendingSpace(space)
       setView('open-wizard')
@@ -97,7 +89,6 @@ function App(): React.JSX.Element {
       return next
     })
     setActiveSpaceId((prev) => (prev === spaceId ? null : prev))
-    if (activeSpaceId === spaceId) setView('list')
   }
 
   async function handleRemoveSpace(id: string): Promise<void> {
@@ -109,84 +100,125 @@ function App(): React.JSX.Element {
   }
 
   const openSpaceIds = new Set(Object.keys(openSpaces))
+  const activeEntry = activeSpaceId ? openSpaces[activeSpaceId] : null
 
   return (
-    <>
-      {Object.entries(openSpaces).map(([spaceId, { config, terminalIds }]) => {
-        const isActive = view === 'grid' && spaceId === activeSpaceId
-        const { cols, rows, paneSpans } = layoutGeometry(config.layout)
-        return (
-          <div
-            key={spaceId}
-            style={{ display: isActive ? 'flex' : 'none', flexDirection: 'column', width: '100vw', height: '100vh' }}
-          >
-            <div style={styles.topBar}>
-              <span style={styles.spaceName}>{config.name}</span>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn-danger" style={topBarBtnSize} onClick={() => handleCloseSpace(spaceId)}>
-                  Close Space
-                </button>
-                <button className="btn-secondary" style={topBarBtnSize} onClick={() => setView('list')}>
-                  Space List
-                </button>
-              </div>
-            </div>
+    <div style={{ display: 'flex', width: '100vw', height: '100vh', position: 'relative' }}>
+      <Sidebar
+        spaces={spaces}
+        openSpaceIds={openSpaceIds}
+        activeSpaceId={activeSpaceId}
+        open={sidebarOpen}
+        onSelectSpace={handleSelectSpace}
+        onNewSpace={() => setView('new-wizard')}
+        onRemoveSpace={handleRemoveSpace}
+      />
+
+      {/* Main area */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+        {/* Terminal grids — all kept in DOM, show/hide via display */}
+        {Object.entries(openSpaces).map(([spaceId, { config, terminalIds }]) => {
+          const isActive = spaceId === activeSpaceId && view === 'idle'
+          const { cols, rows, paneSpans } = layoutGeometry(config.layout)
+          return (
             <div
+              key={spaceId}
               style={{
-                ...styles.paneArea,
-                gridTemplateColumns: `repeat(${cols}, 1fr)`,
-                gridTemplateRows: `repeat(${rows}, 1fr)`
+                display: spaceId === activeSpaceId ? 'flex' : 'none',
+                flex: 1,
+                flexDirection: 'column'
               }}
             >
-              {terminalIds.map((terminalId, i) => {
-                const span = paneSpans?.[i]
-                if (span && span > 1) {
-                  return (
-                    <div key={terminalId} style={{ gridColumn: `span ${span}` }}>
-                      <PaneTerminal terminalId={terminalId} visible={isActive} />
-                    </div>
-                  )
-                }
-                return <PaneTerminal key={terminalId} terminalId={terminalId} visible={isActive} />
-              })}
+              <div
+                style={{
+                  ...paneAreaStyle,
+                  gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                  gridTemplateRows: `repeat(${rows}, 1fr)`
+                }}
+              >
+                {terminalIds.map((terminalId, i) => {
+                  const span = paneSpans?.[i]
+                  if (span && span > 1) {
+                    return (
+                      <div key={terminalId} style={{ gridColumn: `span ${span}` }}>
+                        <PaneTerminal terminalId={terminalId} visible={isActive} />
+                      </div>
+                    )
+                  }
+                  return <PaneTerminal key={terminalId} terminalId={terminalId} visible={isActive} />
+                })}
+              </div>
             </div>
+          )
+        })}
+
+        {/* Empty state */}
+        {!activeSpaceId && (
+          <div className="main-empty-state">
+            <div className="empty-state-glyph">◻</div>
+            <div className="empty-state-title">No space selected</div>
+            <div className="empty-state-sub">Select a Space from the sidebar, or create a new one</div>
           </div>
-        )
-      })}
+        )}
 
-      {view === 'list' && (
-        <SpaceList
-          spaces={spaces}
-          openSpaceIds={openSpaceIds}
-          onNewSpace={() => setView('new-wizard')}
-          onOpenSpace={handleOpenSpace}
-          onCloseSpace={handleCloseSpace}
-          onRemoveSpace={handleRemoveSpace}
-        />
-      )}
+        {/* Close Space status bar */}
+        {activeSpaceId && activeEntry && view === 'idle' && (
+          <div className="close-space-bar">
+            <span>
+              {activeEntry.config.name}&nbsp;&nbsp;{activeEntry.config.cwd}
+            </span>
+            <button
+              className="btn-close-space"
+              onClick={() => {
+                if (window.confirm('Close Space? This will stop all terminals.')) {
+                  handleCloseSpace(activeSpaceId)
+                }
+              }}
+            >
+              Close Space
+            </button>
+          </div>
+        )}
+      </div>
 
+      {/* Toggle pill — rendered after main area so it paints on top */}
+      <button
+        className={`sidebar-toggle${sidebarOpen ? '' : ' at-edge'}`}
+        style={{ left: sidebarOpen ? 160 : 0 }}
+        onClick={() => setSidebarOpen((prev) => !prev)}
+        title="Toggle sidebar (⌘B)"
+        aria-label="Toggle sidebar"
+      >
+        {sidebarOpen ? '‹' : '›'}
+      </button>
+
+      {/* Wizard overlays — fixed so they cover sidebar too */}
       {view === 'new-wizard' && (
-        <NewSpaceWizard
-          mode="new"
-          initialLayout={lastUsed?.layout ?? 4}
-          initialAgent={lastUsed?.agent ?? 'claude'}
-          onLaunch={handleNewSpaceLaunch}
-          onCancel={() => setView('list')}
-        />
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100 }}>
+          <NewSpaceWizard
+            mode="new"
+            initialLayout={lastUsed?.layout ?? 4}
+            initialAgent={lastUsed?.agent ?? 'claude'}
+            onLaunch={handleNewSpaceLaunch}
+            onCancel={() => setView('idle')}
+          />
+        </div>
       )}
 
       {view === 'open-wizard' && pendingSpace && (
-        <NewSpaceWizard
-          mode="open"
-          spaceName={pendingSpace.name}
-          spaceCwd={pendingSpace.directory}
-          initialLayout={lastUsed?.layout ?? 4}
-          initialAgent={lastUsed?.agent ?? 'claude'}
-          onLaunch={handleOpenSpaceLaunch}
-          onCancel={() => setView('list')}
-        />
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100 }}>
+          <NewSpaceWizard
+            mode="open"
+            spaceName={pendingSpace.name}
+            spaceCwd={pendingSpace.directory}
+            initialLayout={lastUsed?.layout ?? 4}
+            initialAgent={lastUsed?.agent ?? 'claude'}
+            onLaunch={handleOpenSpaceLaunch}
+            onCancel={() => setView('idle')}
+          />
+        </div>
       )}
-    </>
+    </div>
   )
 }
 
