@@ -62,7 +62,7 @@ describe('TerminalRegistry', () => {
       registry.spawn('t1', '/project', 'claude')
       expect(spawned).toHaveLength(1)
       expect(spawned[0].file).toBe('/bin/zsh')
-      expect(spawned[0].args).toEqual([])
+      expect(spawned[0].args).toEqual(['-l'])
       expect(spawned[0].options.cwd).toBe('/project')
       expect(spawned[0].options.env).toBe(env)
       expect(spawned[0].options.name).toBe('xterm-256color')

@@ -8,7 +8,7 @@ export interface LaunchPlan {
 export function buildLaunchPlan(shell: string, agentCommand: string): LaunchPlan {
   return {
     spawnFile: shell,
-    spawnArgs: [],
+    spawnArgs: ['-l'],
     sendSequence: agentCommand + '\r',
     sendDelayMs: 300
   }

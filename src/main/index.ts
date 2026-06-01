@@ -1,7 +1,26 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join, basename } from 'path'
+import { exec as cpExec } from 'child_process'
+import { promisify } from 'util'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import * as pty from 'node-pty'
+
+const execAsync = promisify(cpExec)
+const PATH_MARKER = '__PLEXPATH__'
+
+async function fixProcessPath(): Promise<void> {
+  if (process.platform !== 'darwin' && process.platform !== 'linux') return
+  const userShell = process.env.SHELL || '/bin/zsh'
+  try {
+    const { stdout } = await execAsync(
+      `${userShell} -ilc 'printf "${PATH_MARKER}%s${PATH_MARKER}" "$PATH"' 2>/dev/null`
+    )
+    const match = stdout.match(new RegExp(`${PATH_MARKER}(.+?)${PATH_MARKER}`))
+    if (match?.[1]) process.env.PATH = match[1]
+  } catch {
+    // keep whatever PATH the OS provided
+  }
+}
 import { isInstalled } from './agentAvailability'
 import { SpaceStore, JsonFileBackend, type Space, type LastUsed } from './spaceStore'
 import { SpacePool } from './spacePool'
@@ -44,7 +63,8 @@ function createWindow(): void {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  await fixProcessPath()
   electronApp.setAppUserModelId('com.plex-space')
 
   const store = new SpaceStore(new JsonFileBackend(join(app.getPath('userData'), 'spaces.json')))
