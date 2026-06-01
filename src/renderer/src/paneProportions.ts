@@ -25,8 +25,6 @@ export function mouseXToProportion(
   containerWidth: number,
   minPx = MIN_PANE_PX
 ): number {
-  const usable = containerWidth - DIVIDER_PX
-  if (usable <= 0) return 0.5
-  const raw = (mouseX - containerLeft) / usable
+  const raw = (mouseX - containerLeft) / Math.max(1, containerWidth - DIVIDER_PX)
   return clampProportion(raw, containerWidth, minPx)
 }

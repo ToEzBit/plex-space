@@ -20,8 +20,8 @@ export function TwoPaneLayout({ terminalIds, visible }: Props): React.JSX.Elemen
 
     setIsDragging(true)
 
+    const rect = container.getBoundingClientRect()
     const onMouseMove = (ev: MouseEvent): void => {
-      const rect = container.getBoundingClientRect()
       setProportion(mouseXToProportion(ev.clientX, rect.left, rect.width))
     }
 

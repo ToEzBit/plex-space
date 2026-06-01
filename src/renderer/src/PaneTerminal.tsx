@@ -27,6 +27,21 @@ const XTERM_THEME = {
   brightWhite: '#F8FAFC'
 }
 
+function fitAndResize(
+  fit: FitAddon,
+  term: Terminal,
+  lastSizeRef: { current: { cols: number; rows: number } | null },
+  terminalId: string
+): void {
+  fit.fit()
+  const { cols, rows } = term
+  const last = lastSizeRef.current
+  if (!last || last.cols !== cols || last.rows !== rows) {
+    lastSizeRef.current = { cols, rows }
+    window.terminalAPI.resize(terminalId, cols, rows)
+  }
+}
+
 interface Props {
   terminalId: string
   visible: boolean
@@ -42,9 +57,7 @@ function PaneTerminal({ terminalId, visible, isDragging, refitTrigger }: Props):
   const lastSizeRef = useRef<{ cols: number; rows: number } | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
 
-  useEffect(() => {
-    isDraggingRef.current = isDragging ?? false
-  }, [isDragging])
+  isDraggingRef.current = isDragging ?? false
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault()
@@ -114,13 +127,7 @@ function PaneTerminal({ terminalId, visible, isDragging, refitTrigger }: Props):
       rafId = requestAnimationFrame(() => {
         if (isDraggingRef.current) return
         if (el.offsetWidth > 0 && el.offsetHeight > 0) {
-          fitAddon.fit()
-          const { cols, rows } = term
-          const last = lastSizeRef.current
-          if (!last || last.cols !== cols || last.rows !== rows) {
-            lastSizeRef.current = { cols, rows }
-            window.terminalAPI.resize(terminalId, cols, rows)
-          }
+          fitAndResize(fitAddon, term, lastSizeRef, terminalId)
         }
       })
     })
@@ -143,15 +150,7 @@ function PaneTerminal({ terminalId, visible, isDragging, refitTrigger }: Props):
     requestAnimationFrame(() => {
       const fit = fitAddonRef.current
       const term = termRef.current
-      if (fit && term) {
-        fit.fit()
-        const { cols, rows } = term
-        const last = lastSizeRef.current
-        if (!last || last.cols !== cols || last.rows !== rows) {
-          lastSizeRef.current = { cols, rows }
-          window.terminalAPI.resize(terminalId, cols, rows)
-        }
-      }
+      if (fit && term) fitAndResize(fit, term, lastSizeRef, terminalId)
     })
   }, [visible, terminalId])
 
@@ -160,15 +159,7 @@ function PaneTerminal({ terminalId, visible, isDragging, refitTrigger }: Props):
     requestAnimationFrame(() => {
       const fit = fitAddonRef.current
       const term = termRef.current
-      if (fit && term) {
-        fit.fit()
-        const { cols, rows } = term
-        const last = lastSizeRef.current
-        if (!last || last.cols !== cols || last.rows !== rows) {
-          lastSizeRef.current = { cols, rows }
-          window.terminalAPI.resize(terminalId, cols, rows)
-        }
-      }
+      if (fit && term) fitAndResize(fit, term, lastSizeRef, terminalId)
     })
   }, [refitTrigger, terminalId])
 
