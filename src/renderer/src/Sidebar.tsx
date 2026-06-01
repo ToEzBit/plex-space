@@ -1,5 +1,10 @@
+import appIcon from '../../../assets/icon.png'
+
 function initials(name: string): string {
-  const parts = name.replace(/[^a-zA-Z0-9 -]/g, '').split(/[\s-]+/).filter(Boolean)
+  const parts = name
+    .replace(/[^a-zA-Z0-9 -]/g, '')
+    .split(/[\s-]+/)
+    .filter(Boolean)
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
   return name.slice(0, 2).toUpperCase()
 }
@@ -25,7 +30,14 @@ export default function Sidebar({
 }: Props): React.JSX.Element {
   return (
     <div className={`sidebar${open ? '' : ' collapsed'}`}>
-      <div className="sidebar-header">Spaces</div>
+      <div className="sidebar-brand">
+        <img src={appIcon} alt="" />
+        <span>Plex Space</span>
+      </div>
+      <div className="sidebar-header">
+        <span>Spaces</span>
+        <span>{spaces.length}</span>
+      </div>
       <div className="sidebar-list">
         {spaces.length === 0 ? (
           <div className="sidebar-empty">No spaces yet</div>

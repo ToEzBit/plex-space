@@ -4,6 +4,7 @@ import PaneHeader from './PaneHeader'
 import { layoutGeometry } from './layoutGeometry'
 import NewSpaceWizard, { type SpaceConfig } from './NewSpaceWizard'
 import Sidebar from './Sidebar'
+import appIcon from '../../../assets/icon.png'
 
 type View = 'idle' | 'new-wizard' | 'open-wizard'
 
@@ -118,7 +119,15 @@ function App(): React.JSX.Element {
       />
 
       {/* Main area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          minWidth: 0
+        }}
+      >
         {/* Terminal grids — all kept in DOM, show/hide via display */}
         {Object.entries(openSpaces).map(([spaceId, { config, terminalIds }]) => {
           const isActive = spaceId === activeSpaceId
@@ -162,9 +171,22 @@ function App(): React.JSX.Element {
         {/* Empty state */}
         {!activeSpaceId && (
           <div className="main-empty-state">
-            <div className="empty-state-glyph">◻</div>
-            <div className="empty-state-title">No space selected</div>
-            <div className="empty-state-sub">Select a Space from the sidebar, or create a new one</div>
+            <img
+              className={`main-empty-icon${spaces.length > 0 ? ' compact' : ''}`}
+              src={appIcon}
+              alt=""
+            />
+            <div className="empty-state-title">
+              {spaces.length === 0 ? 'Create your first Space' : 'Select a Space to begin'}
+            </div>
+            <div className="empty-state-sub">
+              {spaces.length === 0
+                ? 'Keep your Agent terminals together in one working directory.'
+                : 'Choose a Space from the sidebar or create a new one.'}
+            </div>
+            <button className="btn-primary main-empty-action" onClick={() => setView('new-wizard')}>
+              New Space
+            </button>
           </div>
         )}
 

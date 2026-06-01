@@ -86,15 +86,17 @@ Type scale (px): `11` micro/badges · `12` labels · `13` body/terminal · `14` 
 - Transitions: `150ms ease-out` on hover/active/state changes; respect
   `prefers-reduced-motion`.
 - Focus: visible `2px` `--accent` ring on keyboard focus (do not remove outlines).
+- App identity: use the real `assets/icon.png` icon at `20–24px` in the Space list and
+  `64–72px` in main-area empty states.
 
 ## Surfaces this system applies to
 
-1. **Space list** (home): header, "New Space", space rows (name + path + running badge +
-   Close/Remove), and the **empty state** ("No spaces yet").
-2. **New/Open wizard** (modal panel): all steps — directory+name, layout `1/2/4/6`, agent
+1. **Space list**: persistent `200px` sidebar, compact app identity, "New Space", space rows
+   (name + path + running badge + Remove), and the main-area empty states.
+2. **New/Open wizard** (modal panel): all steps — directory+name, layout `1/2/3/4/6`, agent
    picker incl. the **"not installed"** badge, step indicator, Back/Next/Launch.
-3. **Grid chrome**: top bar (space name, Close Space, Space List).
-4. **Layout grid**: equal-sized `1/2/4/6` pane arrangement and gaps.
+3. **Grid chrome**: status bar (space name, directory, Close Space).
+4. **Layout grid**: equal-sized `1/2/3/4/6` pane arrangement and gaps.
 5. **Terminal**: the xterm theme + font above.
 
 ## Implementation note
