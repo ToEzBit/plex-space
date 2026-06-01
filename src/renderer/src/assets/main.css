@@ -29,6 +29,7 @@ textarea {
 
 :root {
   --font-mono: 'JetBrainsMono NFM', ui-monospace, Menlo, monospace;
+  --sidebar-width: 160px;
   --bg: #0F172A;
   --surface: #1A2438;
   --elevated: #222E45;
@@ -187,8 +188,8 @@ button:active:not(:disabled) {
 /* -- Sidebar -------------------------------------------------------------- */
 
 .sidebar {
-  width: 160px;
-  min-width: 160px;
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
   height: 100%;
   background: var(--surface);
   border-right: 1px solid var(--border);
@@ -391,6 +392,7 @@ button:active:not(:disabled) {
 .sidebar-toggle {
   position: absolute;
   top: 50%;
+  left: var(--sidebar-width);
   transform: translate(-50%, -50%);
   z-index: 20;
   width: 20px;
@@ -414,6 +416,7 @@ button:active:not(:disabled) {
   opacity: 1;
 }
 .sidebar-toggle.at-edge {
+  left: 0;
   transform: translate(0, -50%);
 }
 .sidebar-toggle:active {

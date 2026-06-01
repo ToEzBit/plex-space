@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import PaneTerminal from './PaneTerminal'
 import { layoutGeometry } from './layoutGeometry'
 import NewSpaceWizard, { type SpaceConfig } from './NewSpaceWizard'
@@ -18,6 +18,8 @@ const paneAreaStyle = {
   gap: 0,
   padding: '4px'
 }
+
+const wizardOverlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, zIndex: 100 }
 
 function App(): React.JSX.Element {
   const [view, setView] = useState<View>('idle')
@@ -99,7 +101,7 @@ function App(): React.JSX.Element {
     setSpaces((prev) => prev.filter((s) => s.id !== id))
   }
 
-  const openSpaceIds = new Set(Object.keys(openSpaces))
+  const openSpaceIds = useMemo(() => new Set(Object.keys(openSpaces)), [openSpaces])
   const activeEntry = activeSpaceId ? openSpaces[activeSpaceId] : null
 
   return (
@@ -118,13 +120,13 @@ function App(): React.JSX.Element {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
         {/* Terminal grids — all kept in DOM, show/hide via display */}
         {Object.entries(openSpaces).map(([spaceId, { config, terminalIds }]) => {
-          const isActive = spaceId === activeSpaceId && view === 'idle'
+          const isActive = spaceId === activeSpaceId
           const { cols, rows, paneSpans } = layoutGeometry(config.layout)
           return (
             <div
               key={spaceId}
               style={{
-                display: spaceId === activeSpaceId ? 'flex' : 'none',
+                display: isActive ? 'flex' : 'none',
                 flex: 1,
                 flexDirection: 'column'
               }}
@@ -162,7 +164,7 @@ function App(): React.JSX.Element {
         )}
 
         {/* Close Space status bar */}
-        {activeSpaceId && activeEntry && view === 'idle' && (
+        {activeEntry && view === 'idle' && (
           <div className="close-space-bar">
             <span>
               {activeEntry.config.name}&nbsp;&nbsp;{activeEntry.config.cwd}
@@ -184,7 +186,6 @@ function App(): React.JSX.Element {
       {/* Toggle pill — rendered after main area so it paints on top */}
       <button
         className={`sidebar-toggle${sidebarOpen ? '' : ' at-edge'}`}
-        style={{ left: sidebarOpen ? 160 : 0 }}
         onClick={() => setSidebarOpen((prev) => !prev)}
         title="Toggle sidebar (⌘B)"
         aria-label="Toggle sidebar"
@@ -194,7 +195,7 @@ function App(): React.JSX.Element {
 
       {/* Wizard overlays — fixed so they cover sidebar too */}
       {view === 'new-wizard' && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100 }}>
+        <div style={wizardOverlayStyle}>
           <NewSpaceWizard
             mode="new"
             initialLayout={lastUsed?.layout ?? 4}
@@ -206,7 +207,7 @@ function App(): React.JSX.Element {
       )}
 
       {view === 'open-wizard' && pendingSpace && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100 }}>
+        <div style={wizardOverlayStyle}>
           <NewSpaceWizard
             mode="open"
             spaceName={pendingSpace.name}
