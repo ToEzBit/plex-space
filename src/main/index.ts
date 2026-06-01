@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, clipboard, nativeImage } from 'electron'
 import { join, basename } from 'path'
 import { exec as cpExec } from 'child_process'
 import { promisify } from 'util'
@@ -121,6 +121,11 @@ app.whenReady().then(async () => {
 
   ipcMain.on('terminal:resize', (_, terminalId: string, cols: number, rows: number) => {
     registry.resize(terminalId, cols, rows)
+  })
+
+  ipcMain.handle('terminal:write-image-to-clipboard', (_, filePath: string): void => {
+    const image = nativeImage.createFromPath(filePath)
+    if (!image.isEmpty()) clipboard.writeImage(image)
   })
 
   createWindow()

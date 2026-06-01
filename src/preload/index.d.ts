@@ -5,6 +5,8 @@ interface TerminalAPI {
   input: (terminalId: string, data: string) => void
   resize: (terminalId: string, cols: number, rows: number) => void
   onData: (handler: (terminalId: string, data: string) => void) => () => void
+  getPathForFile: (file: File) => string
+  writeImageToClipboard: (filePath: string) => Promise<void>
 }
 
 interface SpaceAPI {

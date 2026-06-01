@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
@@ -36,6 +36,36 @@ function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
   const termRef = useRef<Terminal | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
+  const [isDragOver, setIsDragOver] = useState(false)
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
+    e.preventDefault()
+    if (!isDragOver) setIsDragOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return
+    setIsDragOver(false)
+  }
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>): Promise<void> => {
+    e.preventDefault()
+    setIsDragOver(false)
+    const files = Array.from(e.dataTransfer.files)
+    if (files.length === 0) return
+
+    if (files.length === 1 && files[0].type.startsWith('image/')) {
+      const filePath = window.terminalAPI.getPathForFile(files[0])
+      await window.terminalAPI.writeImageToClipboard(filePath)
+      termRef.current?.paste('')
+      return
+    }
+
+    const paths = files
+      .map((f) => window.terminalAPI.getPathForFile(f).replace(/ /g, '\\ '))
+      .join(' ')
+    window.terminalAPI.input(terminalId, paths + ' ')
+  }
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -106,7 +136,21 @@ function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
     })
   }, [visible, terminalId])
 
-  return <div ref={containerRef} style={{ width: '100%', height: '100%', overflow: 'hidden' }} />
+  return (
+    <div
+      ref={containerRef}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      style={{
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        outline: isDragOver ? '2px solid var(--accent)' : undefined,
+        outlineOffset: isDragOver ? '-2px' : undefined
+      }}
+    />
+  )
 }
 
 export default PaneTerminal

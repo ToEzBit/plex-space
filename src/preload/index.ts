@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import type { Layout } from '../shared/layout'
 
@@ -12,7 +12,10 @@ const terminalAPI = {
       handler(terminalId, data)
     ipcRenderer.on('terminal:data', listener)
     return () => ipcRenderer.off('terminal:data', listener)
-  }
+  },
+  getPathForFile: (file: File): string => webUtils.getPathForFile(file),
+  writeImageToClipboard: (filePath: string): Promise<void> =>
+    ipcRenderer.invoke('terminal:write-image-to-clipboard', filePath)
 }
 
 const spaceAPI = {
