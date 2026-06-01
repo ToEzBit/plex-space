@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/icon.png" width="128" alt="Plex Space icon" /></p>
+
 # Plex Space
 
 A macOS desktop app for running AI CLI agents (Claude Code, Codex CLI) in configurable terminal grids.
@@ -22,14 +24,14 @@ A **Space** is a saved workspace bound to a single working directory. When you o
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| App shell | Electron 35 |
-| Renderer | React 19 + TypeScript |
-| Build | electron-vite + Vite 6 |
+| Layer             | Technology                |
+| ----------------- | ------------------------- |
+| App shell         | Electron 35               |
+| Renderer          | React 19 + TypeScript     |
+| Build             | electron-vite + Vite 6    |
 | Terminal emulator | xterm.js (`@xterm/xterm`) |
-| PTY | node-pty |
-| Tests | Vitest |
+| PTY               | node-pty                  |
+| Tests             | Vitest                    |
 
 ## Requirements
 
