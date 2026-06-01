@@ -76,7 +76,7 @@ function PaneTerminal({ terminalId, visible }: Props): React.JSX.Element {
       fontSize: 13,
       fontFamily,
       theme: XTERM_THEME,
-      scrollback: 0
+      scrollback: 5000
     })
     const fitAddon = new FitAddon()
     termRef.current = term
