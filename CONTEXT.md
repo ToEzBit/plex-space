@@ -20,6 +20,10 @@ _Avoid_: grid, view, split
 One region in a Layout that holds exactly one Terminal.
 _Avoid_: cell, slot, window, tab
 
+**Pane header**:
+The always-visible, compact floating island centered near the top edge of a Pane. It provides actions scoped to that Pane while remaining distinct from the Terminal it contains.
+_Avoid_: terminal header, toolbar, title bar
+
 **Terminal**:
 The terminal emulator instance running inside a single Pane. This is where an Agent actually runs.
 _Avoid_: console, tty
@@ -33,6 +37,7 @@ _Avoid_: tool, CLI, bot, model, assistant
 - A **Space** saves only its name and one working directory.
 - When a Space is opened, the user picks one **Layout** and one **Agent** for that run (defaulting to the last used); neither is part of the saved Space.
 - A **Layout** holds N **Panes** (N ∈ {1, 2, 3, 4, 6}).
+- A **Pane** has one always-visible **Pane header**.
 - A **Pane** runs one **Terminal**.
 - A **Terminal** runs one **Agent**.
 - The **Agent** applies to every **Pane** in the Space — every Terminal runs the same kind of Agent.
