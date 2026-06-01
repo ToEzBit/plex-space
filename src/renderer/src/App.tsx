@@ -172,7 +172,7 @@ function App(): React.JSX.Element {
             <button
               className="btn-close-space"
               onClick={() => {
-                if (window.confirm('Close Space? This will stop all terminals.')) {
+                if (activeSpaceId && window.confirm('Close Space? This will stop all terminals.')) {
                   handleCloseSpace(activeSpaceId)
                 }
               }}
