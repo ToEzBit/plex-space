@@ -7,7 +7,7 @@ These are **deliberately out of MVP** (recorded so they are not mistaken for ove
 - **Per-Pane Agents** — one Agent applies to all Panes in a Space.
 - **Config-driven / auto-detected Agents** — the Agent list is hardcoded (Claude Code → `claude`, Codex CLI → `codex`).
 - **Agent flags / model selection** — Agents launch with the bare command, no arguments.
-- **Resizable Panes** — the Layout grid is fixed and equal-sized.
+- ~~**Resizable Panes** — the Layout grid is fixed and equal-sized.~~ *Lifted: Panes can now be resized by dragging the boundary between adjacent Panes — see ADR-0008. (Adding/closing/re-splitting Panes mid-session is still out, per the next line.)*
 - **Changing Layout/Agent after launch** — and adding/closing/re-splitting Panes mid-session. To work differently, close and reopen the Space.
 - **Multiple OS windows / tabs** — one app window; concurrent Spaces are switched within it.
 - **Theme / font / appearance settings.**

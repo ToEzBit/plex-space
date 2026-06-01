@@ -13,7 +13,7 @@ The persistent sidebar panel that lists all saved Spaces — always visible alon
 _Avoid_: dashboard, home, projects, navigation panel
 
 **Layout**:
-The arrangement of Panes within an open Space. Selectable as 1, 2, 3, 4, or 6 panes. The 3-pane layout places two equal Panes on top and one full-width Pane on the bottom.
+The arrangement of Panes within an open Space. Selectable as 1, 2, 3, 4, or 6 panes. Panes start equal-sized but their proportions are adjustable while the Space is open; the 3-pane layout places two Panes on top and one full-width Pane on the bottom.
 _Avoid_: grid, view, split
 
 **Pane**:
