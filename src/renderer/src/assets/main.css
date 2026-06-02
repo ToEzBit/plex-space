@@ -253,6 +253,12 @@ button:active:not(:disabled) {
   flex-shrink: 0;
 }
 
+.sidebar-drag-region {
+  height: 28px;
+  flex-shrink: 0;
+  -webkit-app-region: drag;
+}
+
 .sidebar-brand {
   display: flex;
   align-items: center;
@@ -264,6 +270,7 @@ button:active:not(:disabled) {
   border-bottom: 1px solid var(--border);
   color: var(--text);
   text-align: left;
+  -webkit-app-region: no-drag;
 }
 .sidebar-brand:hover {
   background: var(--elevated);

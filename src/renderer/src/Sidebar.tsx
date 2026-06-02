@@ -50,6 +50,7 @@ export default function Sidebar({
 
   return (
     <div className={`sidebar${open ? '' : ' collapsed'}`}>
+      <div className="sidebar-drag-region" aria-hidden="true" />
       <button
         className="sidebar-brand"
         type="button"
