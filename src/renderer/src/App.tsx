@@ -107,6 +107,7 @@ function App(): React.JSX.Element {
   }
 
   const openSpaceIds = useMemo(() => new Set(Object.keys(openSpaces)), [openSpaces])
+  const taskCountsBySpaceId = useMemo(() => new Map<string, number>(), [])
   const activeEntry = activeSpaceId ? openSpaces[activeSpaceId] : null
 
   return (
@@ -116,8 +117,12 @@ function App(): React.JSX.Element {
         openSpaceIds={openSpaceIds}
         activeSpaceId={activeSpaceId}
         open={sidebarOpen}
+        taskCountsBySpaceId={taskCountsBySpaceId}
         onSelectSpace={handleSelectSpace}
-        onNewSpace={() => setView('new-wizard')}
+        onOpenOverview={() => {
+          setActiveSpaceId(null)
+          setView('idle')
+        }}
         onRemoveSpace={handleRemoveSpace}
       />
 
