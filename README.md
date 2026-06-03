@@ -176,10 +176,11 @@ Key decisions are documented as ADRs in `docs/adr/`:
 - **ADR-0007** — Persistent Command center sidebar replaces the full-screen Space list
 - **ADR-0008** — Resizable panes via a rows-first split tree
 - **ADR-0009** — Per-pane git worktrees, created by Plex Space (not the agent)
+- **ADR-0010** — Distribute unsigned universal builds via GitHub Releases
 
-## MVP scope
+## Scope & limitations
 
-The following are **intentionally out of scope** for the current version:
+Plex Space deliberately keeps a tight scope. The following are **intentionally not supported**:
 
 - Per-pane agent selection (all panes in a Space run the same agent)
 - Agent flags or model selection
