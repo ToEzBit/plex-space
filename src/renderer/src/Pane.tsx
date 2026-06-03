@@ -12,6 +12,10 @@ interface Props {
   refitTrigger: number
   /** Flex grow factor for this pane within its row/column. */
   flex: number
+  isFullscreen?: boolean
+  onEnterFullscreen?: (index: number) => void
+  onExitFullscreen?: () => void
+  style?: React.CSSProperties
 }
 
 /** A single titled terminal pane sized by its `flex` factor within a flex row. */
@@ -23,12 +27,23 @@ export function Pane({
   visible,
   isDragging,
   refitTrigger,
-  flex
+  flex,
+  isFullscreen = false,
+  onEnterFullscreen,
+  onExitFullscreen,
+  style
 }: Props): React.JSX.Element {
   return (
-    <div style={{ flex, minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
-      <div className="pane">
-        <PaneHeader index={index} cwd={cwd} branch={branch} />
+    <div className="pane-shell" style={{ ...style, flex }}>
+      <div className={`pane${isFullscreen ? ' fullscreen' : ''}`}>
+        <PaneHeader
+          index={index}
+          cwd={cwd}
+          branch={branch}
+          isFullscreen={isFullscreen}
+          onEnterFullscreen={() => onEnterFullscreen?.(index)}
+          onExitFullscreen={onExitFullscreen}
+        />
         <div className="pane-terminal">
           <PaneTerminal
             terminalId={terminalId}

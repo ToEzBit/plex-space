@@ -9,13 +9,19 @@ interface Props {
   paneCwds: [string, string]
   paneBranches: [string | null, string | null]
   visible: boolean
+  fullscreenPaneIndex: number | null
+  onEnterFullscreen: (index: number) => void
+  onExitFullscreen: () => void
 }
 
 export function TwoPaneLayout({
   terminalIds,
   paneCwds,
   paneBranches,
-  visible
+  visible,
+  fullscreenPaneIndex,
+  onEnterFullscreen,
+  onExitFullscreen
 }: Props): React.JSX.Element {
   const [proportion, setProportion] = useState(0.5)
   const { isDragging, containerCursor, refitTrigger, startDrag, bumpRefit } =
@@ -48,6 +54,7 @@ export function TwoPaneLayout({
         padding: '4px',
         gap: 0,
         background: 'var(--bg)',
+        minHeight: 0,
         cursor: containerCursor,
         userSelect: isDragging ? 'none' : undefined
       }}
@@ -61,6 +68,9 @@ export function TwoPaneLayout({
         isDragging={isDragging}
         refitTrigger={refitTrigger}
         flex={proportion}
+        isFullscreen={fullscreenPaneIndex === 1}
+        onEnterFullscreen={onEnterFullscreen}
+        onExitFullscreen={onExitFullscreen}
       />
 
       <Divider
@@ -79,6 +89,9 @@ export function TwoPaneLayout({
         isDragging={isDragging}
         refitTrigger={refitTrigger}
         flex={1 - proportion}
+        isFullscreen={fullscreenPaneIndex === 2}
+        onEnterFullscreen={onEnterFullscreen}
+        onExitFullscreen={onExitFullscreen}
       />
     </div>
   )

@@ -16,6 +16,9 @@ interface Props {
   paneCwds: string[]
   paneBranches: Array<string | null>
   visible: boolean
+  fullscreenPaneIndex: number | null
+  onEnterFullscreen: (index: number) => void
+  onExitFullscreen: () => void
 }
 
 function equalSplits(cols: number): number[] {
@@ -27,7 +30,10 @@ export function GridLayout({
   terminalIds,
   paneCwds,
   paneBranches,
-  visible
+  visible,
+  fullscreenPaneIndex,
+  onEnterFullscreen,
+  onExitFullscreen
 }: Props): React.JSX.Element {
   const init = equalSplits(cols)
   const [rowProportion, setRowProportion] = useState(0.5)
@@ -90,6 +96,7 @@ export function GridLayout({
         padding: '4px',
         gap: 0,
         background: 'var(--bg)',
+        minHeight: 0,
         cursor: containerCursor,
         userSelect: isDragging ? 'none' : undefined
       }}
@@ -121,6 +128,11 @@ export function GridLayout({
                     isDragging={isDragging}
                     refitTrigger={refitTrigger}
                     flex={frac}
+                    isFullscreen={
+                      fullscreenPaneIndex === paneOffset + colIndex + 1
+                    }
+                    onEnterFullscreen={onEnterFullscreen}
+                    onExitFullscreen={onExitFullscreen}
                   />
                   {colIndex < cols - 1 && (
                     <Divider

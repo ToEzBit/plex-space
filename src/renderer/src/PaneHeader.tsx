@@ -14,13 +14,31 @@ function ExpandIcon(): React.JSX.Element {
   )
 }
 
+function CollapseIcon(): React.JSX.Element {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M5 1v4H1M11 1v4h4M15 11h-4v4M1 11h4v4M1 5l4-4M11 1l4 4M15 11l-4 4M5 15l-4-4" />
+    </svg>
+  )
+}
+
 interface Props {
   index: number
   cwd: string
   branch: string | null
+  isFullscreen?: boolean
+  onEnterFullscreen?: () => void
+  onExitFullscreen?: () => void
 }
 
-function PaneHeader({ index, cwd, branch }: Props): React.JSX.Element {
+function PaneHeader({
+  index,
+  cwd,
+  branch,
+  isFullscreen = false,
+  onEnterFullscreen,
+  onExitFullscreen
+}: Props): React.JSX.Element {
   async function handleOpenInVSCode(): Promise<void> {
     try {
       await window.spaceAPI.openInVSCode(cwd)
@@ -32,6 +50,7 @@ function PaneHeader({ index, cwd, branch }: Props): React.JSX.Element {
   }
 
   const label = branch ?? `Pane ${index}`
+  const fullscreenLabel = isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Pane'
 
   return (
     <div className="pane-header">
@@ -52,10 +71,11 @@ function PaneHeader({ index, cwd, branch }: Props): React.JSX.Element {
         </button>
         <button
           type="button"
-          title="Fullscreen Pane"
-          aria-label="Fullscreen Pane"
+          title={fullscreenLabel}
+          aria-label={fullscreenLabel}
+          onClick={isFullscreen ? onExitFullscreen : onEnterFullscreen}
         >
-          <ExpandIcon />
+          {isFullscreen ? <CollapseIcon /> : <ExpandIcon />}
         </button>
       </div>
     </div>

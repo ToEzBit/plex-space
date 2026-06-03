@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import PaneTerminal from './PaneTerminal'
-import PaneHeader from './PaneHeader'
+import { Pane } from './Pane'
 import { TwoPaneLayout } from './TwoPaneLayout'
 import { ThreePaneLayout } from './ThreePaneLayout'
 import { GridLayout } from './GridLayout'
@@ -18,12 +17,19 @@ interface OpenSpaceEntry {
   paneBranches: Array<string | null>
 }
 
+interface FullscreenPane {
+  spaceId: string
+  index: number
+}
+
 const paneAreaStyle = {
   flex: 1,
   background: 'var(--bg)',
   display: 'grid',
   gap: 0,
-  padding: '4px'
+  padding: '4px',
+  minHeight: 0,
+  overflow: 'hidden'
 }
 
 const wizardOverlayStyle: React.CSSProperties = {
@@ -33,12 +39,21 @@ const wizardOverlayStyle: React.CSSProperties = {
 }
 
 function renderSpaceLayout(
+  spaceId: string,
   config: SpaceConfig,
   terminalIds: string[],
   paneCwds: string[],
   paneBranches: Array<string | null>,
-  visible: boolean
+  visible: boolean,
+  fullscreenPane: FullscreenPane | null,
+  onEnterFullscreen: (spaceId: string, index: number) => void,
+  onExitFullscreen: () => void
 ): React.JSX.Element {
+  const fullscreenPaneIndex =
+    fullscreenPane?.spaceId === spaceId ? fullscreenPane.index : null
+  const handleEnterFullscreen = (index: number): void =>
+    onEnterFullscreen(spaceId, index)
+
   if (config.layout === 2) {
     return (
       <TwoPaneLayout
@@ -46,6 +61,9 @@ function renderSpaceLayout(
         paneCwds={[paneCwds[0], paneCwds[1]]}
         paneBranches={[paneBranches[0] ?? null, paneBranches[1] ?? null]}
         visible={visible}
+        fullscreenPaneIndex={fullscreenPaneIndex}
+        onEnterFullscreen={handleEnterFullscreen}
+        onExitFullscreen={onExitFullscreen}
       />
     )
   }
@@ -61,6 +79,9 @@ function renderSpaceLayout(
           paneBranches[2] ?? null
         ]}
         visible={visible}
+        fullscreenPaneIndex={fullscreenPaneIndex}
+        onEnterFullscreen={handleEnterFullscreen}
+        onExitFullscreen={onExitFullscreen}
       />
     )
   }
@@ -73,6 +94,9 @@ function renderSpaceLayout(
         paneCwds={paneCwds}
         paneBranches={paneBranches}
         visible={visible}
+        fullscreenPaneIndex={fullscreenPaneIndex}
+        onEnterFullscreen={handleEnterFullscreen}
+        onExitFullscreen={onExitFullscreen}
       />
     )
   }
@@ -89,22 +113,23 @@ function renderSpaceLayout(
       {terminalIds.map((terminalId, i) => {
         const span = paneSpans?.[i]
         return (
-          <div
-            className="pane"
+          <Pane
             key={terminalId}
+            index={i + 1}
+            terminalId={terminalId}
+            cwd={paneCwds[i]}
+            branch={paneBranches[i] ?? null}
+            visible={visible}
+            isDragging={false}
+            refitTrigger={0}
+            flex={1}
+            isFullscreen={fullscreenPaneIndex === i + 1}
+            onEnterFullscreen={handleEnterFullscreen}
+            onExitFullscreen={onExitFullscreen}
             style={
               span && span > 1 ? { gridColumn: `span ${span}` } : undefined
             }
-          >
-            <PaneHeader
-              index={i + 1}
-              cwd={paneCwds[i]}
-              branch={paneBranches[i] ?? null}
-            />
-            <div className="pane-terminal">
-              <PaneTerminal terminalId={terminalId} visible={visible} />
-            </div>
-          </div>
+          />
         )
       })}
     </div>
@@ -121,6 +146,9 @@ function App(): React.JSX.Element {
   )
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [fullscreenPane, setFullscreenPane] = useState<FullscreenPane | null>(
+    null
+  )
 
   useEffect(() => {
     Promise.all([
@@ -138,10 +166,19 @@ function App(): React.JSX.Element {
         e.preventDefault()
         setSidebarOpen((prev) => !prev)
       }
+      if (e.key === 'Escape') {
+        setFullscreenPane(null)
+      }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  useEffect(() => {
+    if (fullscreenPane && fullscreenPane.spaceId !== activeSpaceId) {
+      setFullscreenPane(null)
+    }
+  }, [activeSpaceId, fullscreenPane])
 
   async function launchSpace(
     spaceId: string,
@@ -198,6 +235,7 @@ function App(): React.JSX.Element {
       return next
     })
     setActiveSpaceId((prev) => (prev === spaceId ? null : prev))
+    setFullscreenPane((prev) => (prev?.spaceId === spaceId ? null : prev))
     if (kept.length > 0) {
       const lines = kept.map((k) => `•  ${k.branch}  —  ${k.path}`).join('\n')
       window.alert(
@@ -250,7 +288,8 @@ function App(): React.JSX.Element {
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          minWidth: 0
+          minWidth: 0,
+          minHeight: 0
         }}
       >
         {/* Terminal grids — all kept in DOM, show/hide via display */}
@@ -263,15 +302,21 @@ function App(): React.JSX.Element {
                 style={{
                   display: isActive ? 'flex' : 'none',
                   flex: 1,
-                  flexDirection: 'column'
+                  flexDirection: 'column',
+                  minHeight: 0,
+                  overflow: 'hidden'
                 }}
               >
                 {renderSpaceLayout(
+                  spaceId,
                   config,
                   terminalIds,
                   paneCwds,
                   paneBranches,
-                  isActive
+                  isActive,
+                  fullscreenPane,
+                  (spaceId, index) => setFullscreenPane({ spaceId, index }),
+                  () => setFullscreenPane(null)
                 )}
               </div>
             )

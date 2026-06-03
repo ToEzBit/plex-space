@@ -9,13 +9,19 @@ interface Props {
   paneCwds: [string, string, string]
   paneBranches: [string | null, string | null, string | null]
   visible: boolean
+  fullscreenPaneIndex: number | null
+  onEnterFullscreen: (index: number) => void
+  onExitFullscreen: () => void
 }
 
 export function ThreePaneLayout({
   terminalIds,
   paneCwds,
   paneBranches,
-  visible
+  visible,
+  fullscreenPaneIndex,
+  onEnterFullscreen,
+  onExitFullscreen
 }: Props): React.JSX.Element {
   const [rowProportion, setRowProportion] = useState(0.5)
   const [topProportion, setTopProportion] = useState(0.5)
@@ -66,6 +72,7 @@ export function ThreePaneLayout({
         padding: '4px',
         gap: 0,
         background: 'var(--bg)',
+        minHeight: 0,
         cursor: containerCursor,
         userSelect: isDragging ? 'none' : undefined
       }}
@@ -88,6 +95,9 @@ export function ThreePaneLayout({
           isDragging={isDragging}
           refitTrigger={refitTrigger}
           flex={topProportion}
+          isFullscreen={fullscreenPaneIndex === 1}
+          onEnterFullscreen={onEnterFullscreen}
+          onExitFullscreen={onExitFullscreen}
         />
         <Divider
           orientation="v"
@@ -104,6 +114,9 @@ export function ThreePaneLayout({
           isDragging={isDragging}
           refitTrigger={refitTrigger}
           flex={1 - topProportion}
+          isFullscreen={fullscreenPaneIndex === 2}
+          onEnterFullscreen={onEnterFullscreen}
+          onExitFullscreen={onExitFullscreen}
         />
       </div>
 
@@ -123,6 +136,9 @@ export function ThreePaneLayout({
         isDragging={isDragging}
         refitTrigger={refitTrigger}
         flex={1 - rowProportion}
+        isFullscreen={fullscreenPaneIndex === 3}
+        onEnterFullscreen={onEnterFullscreen}
+        onExitFullscreen={onExitFullscreen}
       />
     </div>
   )
