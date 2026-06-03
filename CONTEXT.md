@@ -16,10 +16,6 @@ _Avoid_: dashboard, home, navigation panel
 The Command center section that lists all saved Spaces. The user opens, closes, and switches between Spaces from here without leaving the current view; open Spaces are marked with a ring indicator.
 _Avoid_: projects, workspace list, repo list
 
-**Space task list**:
-A task list tied to one Space. The Command center may show the active Space's tasks, while task counts on Space rows summarize tasks without expanding every Space into a tree.
-_Avoid_: global todo list, app tasks, project tasks
-
 **Layout**:
 The arrangement of Panes within an open Space. Selectable as 1, 2, 3, 4, or 6 panes. Panes start equal-sized but their proportions are adjustable while the Space is open; the 3-pane layout places two Panes on top and one full-width Pane on the bottom.
 _Avoid_: grid, view, split
@@ -47,7 +43,6 @@ _Avoid_: branch, fork, clone, copy, sandbox
 ## Relationships
 
 - A **Space** saves only its name and one working directory.
-- A **Space** may have one **Space task list**.
 - When a Space is opened, the user picks one **Layout** and one **Agent** for that run (defaulting to the last used); neither is part of the saved Space.
 - A **Layout** holds N **Panes** (N ∈ {1, 2, 3, 4, 6}).
 - A **Pane** has one always-visible **Pane header**.

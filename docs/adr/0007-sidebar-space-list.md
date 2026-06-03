@@ -13,12 +13,11 @@ Why not the alternatives:
 
 ## Decisions
 
-- Command center is **200 px wide**, always visible, not resizable (MVP; resizing is out of scope per ADR-0005). This leaves enough room to scan Space names, directory basenames, running status, and compact Space-scoped summaries without making the panel dominant.
+- Command center is **200 px wide**, always visible, not resizable (MVP; resizing is out of scope per ADR-0005). This leaves enough room to scan Space names, directory basenames, and running status without making the panel dominant.
 - Each Space item shows its **name** and a **ring indicator**: accent-colored ring = active, success-colored ring = open but not active, no ring = closed.
 - A **toggle button** (semi-transparent pill on the sidebar edge) collapses the sidebar to reclaim terminal space when the user needs it.
 - When no Space is active (app launch, or after closing the last Space), the main area shows an **empty state** prompt. There is no longer a separate full-screen Space list view.
 - The app icon at the top of the Command center returns to the Space overview.
-- The Command center reserves a lower section for the active Space's Space task list. The Space list remains the primary section; task overflow opens in a drawer instead of expanding every Space row into a tree.
 - "New Space" stays in the Space overview empty state rather than being pinned to the Command center.
 - "Close Space" moves to a **status bar at the bottom** of the main area (no top bar).
 
