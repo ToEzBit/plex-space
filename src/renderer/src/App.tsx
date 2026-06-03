@@ -14,6 +14,7 @@ type View = 'idle' | 'new-wizard' | 'open-wizard'
 interface OpenSpaceEntry {
   config: SpaceConfig
   terminalIds: string[]
+  paneCwds: string[]
 }
 
 const paneAreaStyle = {
@@ -30,17 +31,89 @@ const wizardOverlayStyle: React.CSSProperties = {
   zIndex: 100
 }
 
+function renderSpaceLayout(
+  config: SpaceConfig,
+  terminalIds: string[],
+  paneCwds: string[],
+  visible: boolean
+): React.JSX.Element {
+  if (config.layout === 2) {
+    return (
+      <TwoPaneLayout
+        terminalIds={[terminalIds[0], terminalIds[1]]}
+        paneCwds={[paneCwds[0], paneCwds[1]]}
+        visible={visible}
+      />
+    )
+  }
+
+  if (config.layout === 3) {
+    return (
+      <ThreePaneLayout
+        terminalIds={[terminalIds[0], terminalIds[1], terminalIds[2]]}
+        paneCwds={[paneCwds[0], paneCwds[1], paneCwds[2]]}
+        visible={visible}
+      />
+    )
+  }
+
+  if (config.layout === 4 || config.layout === 6) {
+    return (
+      <GridLayout
+        cols={config.layout === 4 ? 2 : 3}
+        terminalIds={terminalIds}
+        paneCwds={paneCwds}
+        visible={visible}
+      />
+    )
+  }
+
+  const { cols, rows, paneSpans } = layoutGeometry(config.layout)
+  return (
+    <div
+      style={{
+        ...paneAreaStyle,
+        gridTemplateColumns: `repeat(${cols}, 1fr)`,
+        gridTemplateRows: `repeat(${rows}, 1fr)`
+      }}
+    >
+      {terminalIds.map((terminalId, i) => {
+        const span = paneSpans?.[i]
+        return (
+          <div
+            className="pane"
+            key={terminalId}
+            style={
+              span && span > 1 ? { gridColumn: `span ${span}` } : undefined
+            }
+          >
+            <PaneHeader index={i + 1} cwd={paneCwds[i]} />
+            <div className="pane-terminal">
+              <PaneTerminal terminalId={terminalId} visible={visible} />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function App(): React.JSX.Element {
   const [view, setView] = useState<View>('idle')
   const [spaces, setSpaces] = useState<Space[]>([])
   const [lastUsed, setLastUsedState] = useState<LastUsed | null>(null)
   const [pendingSpace, setPendingSpace] = useState<Space | null>(null)
-  const [openSpaces, setOpenSpaces] = useState<Record<string, OpenSpaceEntry>>({})
+  const [openSpaces, setOpenSpaces] = useState<Record<string, OpenSpaceEntry>>(
+    {}
+  )
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
   useEffect(() => {
-    Promise.all([window.spaceAPI.listSpaces(), window.spaceAPI.getLastUsed()]).then(([s, lu]) => {
+    Promise.all([
+      window.spaceAPI.listSpaces(),
+      window.spaceAPI.getLastUsed()
+    ]).then(([s, lu]) => {
       setSpaces(s)
       setLastUsedState(lu)
     })
@@ -57,18 +130,24 @@ function App(): React.JSX.Element {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  async function launchSpace(spaceId: string, config: SpaceConfig): Promise<void> {
+  async function launchSpace(
+    spaceId: string,
+    config: SpaceConfig
+  ): Promise<void> {
     const lu: LastUsed = { layout: config.layout, agent: config.agentCommand }
     await window.spaceAPI.setLastUsed(lu)
     setLastUsedState(lu)
-    const { terminalIds } = await window.spaceAPI.openGrid(
+    const { terminalIds, paneCwds } = await window.spaceAPI.openGrid(
       spaceId,
       config.cwd,
       config.layout,
       config.agentCommand,
       config.paneChoices
     )
-    setOpenSpaces((prev) => ({ ...prev, [spaceId]: { config, terminalIds } }))
+    setOpenSpaces((prev) => ({
+      ...prev,
+      [spaceId]: { config, terminalIds, paneCwds }
+    }))
     setActiveSpaceId(spaceId)
     setView('idle')
   }
@@ -122,7 +201,10 @@ function App(): React.JSX.Element {
     setSpaces((prev) => prev.filter((s) => s.id !== id))
   }
 
-  const openSpaceIds = useMemo(() => new Set(Object.keys(openSpaces)), [openSpaces])
+  const openSpaceIds = useMemo(
+    () => new Set(Object.keys(openSpaces)),
+    [openSpaces]
+  )
   const activeEntry = activeSpaceId ? openSpaces[activeSpaceId] : null
 
   return (
@@ -158,57 +240,23 @@ function App(): React.JSX.Element {
         }}
       >
         {/* Terminal grids — all kept in DOM, show/hide via display */}
-        {Object.entries(openSpaces).map(([spaceId, { config, terminalIds }]) => {
-          const isActive = spaceId === activeSpaceId
-          const { cols, rows, paneSpans } = layoutGeometry(config.layout)
-          return (
-            <div
-              key={spaceId}
-              style={{
-                display: isActive ? 'flex' : 'none',
-                flex: 1,
-                flexDirection: 'column'
-              }}
-            >
-              {config.layout === 2 ? (
-                <TwoPaneLayout terminalIds={[terminalIds[0], terminalIds[1]]} visible={isActive} />
-              ) : config.layout === 3 ? (
-                <ThreePaneLayout
-                  terminalIds={[terminalIds[0], terminalIds[1], terminalIds[2]]}
-                  visible={isActive}
-                />
-              ) : config.layout === 4 ? (
-                <GridLayout cols={2} terminalIds={terminalIds} visible={isActive} />
-              ) : config.layout === 6 ? (
-                <GridLayout cols={3} terminalIds={terminalIds} visible={isActive} />
-              ) : (
-                <div
-                  style={{
-                    ...paneAreaStyle,
-                    gridTemplateColumns: `repeat(${cols}, 1fr)`,
-                    gridTemplateRows: `repeat(${rows}, 1fr)`
-                  }}
-                >
-                  {terminalIds.map((terminalId, i) => {
-                    const span = paneSpans?.[i]
-                    return (
-                      <div
-                        className="pane"
-                        key={terminalId}
-                        style={span && span > 1 ? { gridColumn: `span ${span}` } : undefined}
-                      >
-                        <PaneHeader index={i + 1} />
-                        <div className="pane-terminal">
-                          <PaneTerminal terminalId={terminalId} visible={isActive} />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )
-        })}
+        {Object.entries(openSpaces).map(
+          ([spaceId, { config, terminalIds, paneCwds }]) => {
+            const isActive = spaceId === activeSpaceId
+            return (
+              <div
+                key={spaceId}
+                style={{
+                  display: isActive ? 'flex' : 'none',
+                  flex: 1,
+                  flexDirection: 'column'
+                }}
+              >
+                {renderSpaceLayout(config, terminalIds, paneCwds, isActive)}
+              </div>
+            )
+          }
+        )}
 
         {/* Empty state */}
         {!activeSpaceId && (
@@ -219,14 +267,19 @@ function App(): React.JSX.Element {
               alt=""
             />
             <div className="empty-state-title">
-              {spaces.length === 0 ? 'Create your first Space' : 'Select a Space to begin'}
+              {spaces.length === 0
+                ? 'Create your first Space'
+                : 'Select a Space to begin'}
             </div>
             <div className="empty-state-sub">
               {spaces.length === 0
                 ? 'Keep your Agent terminals together in one working directory.'
                 : 'Choose a Space from the sidebar or create a new one.'}
             </div>
-            <button className="btn-primary main-empty-action" onClick={() => setView('new-wizard')}>
+            <button
+              className="btn-primary main-empty-action"
+              onClick={() => setView('new-wizard')}
+            >
               New Space
             </button>
           </div>
@@ -241,7 +294,10 @@ function App(): React.JSX.Element {
             <button
               className="btn-close-space"
               onClick={() => {
-                if (activeSpaceId && window.confirm('Close Space? This will stop all terminals.')) {
+                if (
+                  activeSpaceId &&
+                  window.confirm('Close Space? This will stop all terminals.')
+                ) {
                   handleCloseSpace(activeSpaceId)
                 }
               }}

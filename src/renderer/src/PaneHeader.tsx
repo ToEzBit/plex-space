@@ -16,17 +16,37 @@ function ExpandIcon(): React.JSX.Element {
 
 interface Props {
   index: number
+  cwd: string
 }
 
-function PaneHeader({ index }: Props): React.JSX.Element {
+function PaneHeader({ index, cwd }: Props): React.JSX.Element {
+  async function handleOpenInVSCode(): Promise<void> {
+    try {
+      await window.spaceAPI.openInVSCode(cwd)
+    } catch {
+      window.alert(
+        'Could not open VS Code. Install Visual Studio Code or the `code` CLI and try again.'
+      )
+    }
+  }
+
   return (
     <div className="pane-header">
       <span>Pane {index}</span>
       <div className="pane-header-actions">
-        <button type="button" title="Open in VS Code" aria-label="Open in VS Code">
+        <button
+          type="button"
+          title="Open in VS Code"
+          aria-label="Open in VS Code"
+          onClick={handleOpenInVSCode}
+        >
           <CodeIcon />
         </button>
-        <button type="button" title="Fullscreen Pane" aria-label="Fullscreen Pane">
+        <button
+          type="button"
+          title="Fullscreen Pane"
+          aria-label="Fullscreen Pane"
+        >
           <ExpandIcon />
         </button>
       </div>

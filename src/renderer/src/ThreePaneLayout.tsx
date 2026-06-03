@@ -6,13 +6,19 @@ import { useDividerDrag } from './useDividerDrag'
 
 interface Props {
   terminalIds: [string, string, string]
+  paneCwds: [string, string, string]
   visible: boolean
 }
 
-export function ThreePaneLayout({ terminalIds, visible }: Props): React.JSX.Element {
+export function ThreePaneLayout({
+  terminalIds,
+  paneCwds,
+  visible
+}: Props): React.JSX.Element {
   const [rowProportion, setRowProportion] = useState(0.5)
   const [topProportion, setTopProportion] = useState(0.5)
-  const { isDragging, containerCursor, refitTrigger, startDrag, bumpRefit } = useDividerDrag()
+  const { isDragging, containerCursor, refitTrigger, startDrag, bumpRefit } =
+    useDividerDrag()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const topRowRef = useRef<HTMLDivElement>(null)
@@ -21,7 +27,9 @@ export function ThreePaneLayout({ terminalIds, visible }: Props): React.JSX.Elem
     const container = containerRef.current
     if (!container) return
     const rect = container.getBoundingClientRect()
-    setRowProportion(mouseToProportion(ev.clientY, rect.top, rect.height, MIN_PANE_HEIGHT_PX))
+    setRowProportion(
+      mouseToProportion(ev.clientY, rect.top, rect.height, MIN_PANE_HEIGHT_PX)
+    )
   })
 
   const handleVDividerMouseDown = startDrag('v', (ev) => {
@@ -42,6 +50,7 @@ export function ThreePaneLayout({ terminalIds, visible }: Props): React.JSX.Elem
   }
 
   const [topLeftId, topRightId, bottomId] = terminalIds
+  const [topLeftCwd, topRightCwd, bottomCwd] = paneCwds
 
   return (
     <div
@@ -60,11 +69,17 @@ export function ThreePaneLayout({ terminalIds, visible }: Props): React.JSX.Elem
     >
       <div
         ref={topRowRef}
-        style={{ flex: rowProportion, display: 'flex', overflow: 'hidden', minHeight: 0 }}
+        style={{
+          flex: rowProportion,
+          display: 'flex',
+          overflow: 'hidden',
+          minHeight: 0
+        }}
       >
         <Pane
           index={1}
           terminalId={topLeftId}
+          cwd={topLeftCwd}
           visible={visible}
           isDragging={isDragging}
           refitTrigger={refitTrigger}
@@ -79,6 +94,7 @@ export function ThreePaneLayout({ terminalIds, visible }: Props): React.JSX.Elem
         <Pane
           index={2}
           terminalId={topRightId}
+          cwd={topRightCwd}
           visible={visible}
           isDragging={isDragging}
           refitTrigger={refitTrigger}
@@ -96,6 +112,7 @@ export function ThreePaneLayout({ terminalIds, visible }: Props): React.JSX.Elem
       <Pane
         index={3}
         terminalId={bottomId}
+        cwd={bottomCwd}
         visible={visible}
         isDragging={isDragging}
         refitTrigger={refitTrigger}

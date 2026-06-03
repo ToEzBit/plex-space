@@ -1,3 +1,5 @@
+import type { OpenGridResult } from '../shared/spaceRuntime'
+
 /** Everything a Terminal needs to launch. cwd may be the Space directory or a worktree path. */
 export interface TerminalSpec {
   cwd: string
@@ -26,6 +28,7 @@ export interface TerminalSpawner {
 
 interface OpenSpaceEntry {
   terminalIds: string[]
+  paneCwds: string[]
   worktrees: WorktreeRef[]
 }
 
@@ -34,21 +37,26 @@ export class SpacePool {
 
   constructor(private spawner: TerminalSpawner) {}
 
-  open(spaceId: string, panes: PaneLaunch[]): { terminalIds: string[]; isNew: boolean } {
+  open(spaceId: string, panes: PaneLaunch[]): OpenGridResult {
     const existing = this.pool.get(spaceId)
     if (existing) {
-      return { terminalIds: existing.terminalIds, isNew: false }
+      return {
+        terminalIds: existing.terminalIds,
+        paneCwds: existing.paneCwds,
+        isNew: false
+      }
     }
 
     const terminalIds = panes.map((_, i) => `${spaceId}:${i}`)
+    const paneCwds = panes.map((pane) => pane.spec.cwd)
     panes.forEach((pane, i) => this.spawner.spawn(terminalIds[i], pane.spec))
 
     const worktrees = panes
       .map((pane) => pane.worktree)
       .filter((wt): wt is WorktreeRef => wt !== undefined)
 
-    this.pool.set(spaceId, { terminalIds, worktrees })
-    return { terminalIds, isNew: true }
+    this.pool.set(spaceId, { terminalIds, paneCwds, worktrees })
+    return { terminalIds, paneCwds, isNew: true }
   }
 
   /** Kills the Space's Terminals and returns its managed worktrees so the caller can clean them up. */

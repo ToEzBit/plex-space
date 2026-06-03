@@ -1,11 +1,20 @@
-import { app, shell, BrowserWindow, ipcMain, dialog, clipboard, nativeImage } from 'electron'
+import {
+  app,
+  shell,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  clipboard,
+  nativeImage
+} from 'electron'
 import { join, basename } from 'path'
-import { exec as cpExec } from 'child_process'
+import { exec as cpExec, execFile } from 'child_process'
 import { promisify } from 'util'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import * as pty from 'node-pty'
 
 const execAsync = promisify(cpExec)
+const execFileAsync = promisify(execFile)
 const PATH_MARKER = '__PLEXPATH__'
 
 async function fixProcessPath(): Promise<void> {
@@ -21,13 +30,31 @@ async function fixProcessPath(): Promise<void> {
     // keep whatever PATH the OS provided
   }
 }
+
+async function openInVSCode(cwd: string): Promise<void> {
+  try {
+    await execFileAsync('open', ['-a', 'Visual Studio Code', cwd])
+  } catch {
+    await execFileAsync('code', [cwd])
+  }
+}
 import { isInstalled } from './agentAvailability'
-import { SpaceStore, JsonFileBackend, type Space, type LastUsed } from './spaceStore'
+import {
+  SpaceStore,
+  JsonFileBackend,
+  type Space,
+  type LastUsed
+} from './spaceStore'
 import { SpacePool } from './spacePool'
 import { TerminalRegistry } from './terminalRegistry'
 import { worktreeContext, cleanupWorktree } from './worktree'
 import { resolvePanes } from './resolvePanes'
-import type { PaneWorktree, ManagedWorktree, KeptWorktree } from '../shared/worktree'
+import type { OpenGridResult } from '../shared/spaceRuntime'
+import type {
+  PaneWorktree,
+  ManagedWorktree,
+  KeptWorktree
+} from '../shared/worktree'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -35,7 +62,8 @@ const registry = new TerminalRegistry({
   spawnPty: (file, args, options) => pty.spawn(file, args, options),
   shell: process.env.SHELL || '/bin/zsh',
   env: process.env as Record<string, string>,
-  onData: (terminalId, data) => mainWindow?.webContents.send('terminal:data', terminalId, data)
+  onData: (terminalId, data) =>
+    mainWindow?.webContents.send('terminal:data', terminalId, data)
 })
 const spacePool = new SpacePool(registry)
 
@@ -71,7 +99,9 @@ app.whenReady().then(async () => {
   await fixProcessPath()
   electronApp.setAppUserModelId('com.plex-space')
 
-  const store = new SpaceStore(new JsonFileBackend(join(app.getPath('userData'), 'spaces.json')))
+  const store = new SpaceStore(
+    new JsonFileBackend(join(app.getPath('userData'), 'spaces.json'))
+  )
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -83,12 +113,24 @@ app.whenReady().then(async () => {
     (_, opts: { name?: string; directory: string }): Space => store.create(opts)
   )
   ipcMain.handle('space:remove', (_, id: string): void => store.remove(id))
-  ipcMain.handle('space:getLastUsed', (): LastUsed | null => store.getLastUsed())
-  ipcMain.handle('space:setLastUsed', (_, lastUsed: LastUsed): void => store.setLastUsed(lastUsed))
+  ipcMain.handle('space:getLastUsed', (): LastUsed | null =>
+    store.getLastUsed()
+  )
+  ipcMain.handle('space:setLastUsed', (_, lastUsed: LastUsed): void =>
+    store.setLastUsed(lastUsed)
+  )
 
-  ipcMain.handle('system:which', async (_, command: string): Promise<boolean> => {
-    return isInstalled(command)
-  })
+  ipcMain.handle(
+    'system:which',
+    async (_, command: string): Promise<boolean> => {
+      return isInstalled(command)
+    }
+  )
+
+  ipcMain.handle(
+    'system:openInVSCode',
+    async (_, cwd: string): Promise<void> => openInVSCode(cwd)
+  )
 
   ipcMain.handle(
     'dialog:selectDirectory',
@@ -135,7 +177,7 @@ app.whenReady().then(async () => {
       layout: number,
       agentCommand: string,
       paneChoices: PaneWorktree[]
-    ): Promise<{ terminalIds: string[]; isNew: boolean }> => {
+    ): Promise<OpenGridResult> => {
       // Already open → reattach to the existing Terminals; do no git work.
       if (spacePool.isOpen(spaceId)) return spacePool.open(spaceId, [])
 
@@ -166,14 +208,20 @@ app.whenReady().then(async () => {
     registry.input(terminalId, data)
   })
 
-  ipcMain.on('terminal:resize', (_, terminalId: string, cols: number, rows: number) => {
-    registry.resize(terminalId, cols, rows)
-  })
+  ipcMain.on(
+    'terminal:resize',
+    (_, terminalId: string, cols: number, rows: number) => {
+      registry.resize(terminalId, cols, rows)
+    }
+  )
 
-  ipcMain.handle('terminal:write-image-to-clipboard', (_, filePath: string): void => {
-    const image = nativeImage.createFromPath(filePath)
-    if (!image.isEmpty()) clipboard.writeImage(image)
-  })
+  ipcMain.handle(
+    'terminal:write-image-to-clipboard',
+    (_, filePath: string): void => {
+      const image = nativeImage.createFromPath(filePath)
+      if (!image.isEmpty()) clipboard.writeImage(image)
+    }
+  )
 
   createWindow()
 

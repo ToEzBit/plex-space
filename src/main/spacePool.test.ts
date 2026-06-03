@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { SpacePool, type TerminalSpawner, type TerminalSpec, type PaneLaunch } from './spacePool'
+import {
+  SpacePool,
+  type TerminalSpawner,
+  type TerminalSpec,
+  type PaneLaunch
+} from './spacePool'
 
 class FakeSpawner implements TerminalSpawner {
   spawned: Array<{ terminalId: string; spec: TerminalSpec }> = []
@@ -42,8 +47,27 @@ describe('SpacePool', () => {
     })
 
     it('returns terminalIds of length equal to the pane count', () => {
-      const { terminalIds } = pool.open('space-1', panes(2, '/project', 'claude'))
+      const { terminalIds } = pool.open(
+        'space-1',
+        panes(2, '/project', 'claude')
+      )
       expect(terminalIds).toHaveLength(2)
+    })
+
+    it('returns each Pane cwd', () => {
+      const { paneCwds } = pool.open('space-1', [
+        { spec: { cwd: '/project', agentCommand: 'claude' } },
+        {
+          spec: {
+            cwd: '/project/.plex-space/worktrees/fix',
+            agentCommand: 'claude'
+          }
+        }
+      ])
+      expect(paneCwds).toEqual([
+        '/project',
+        '/project/.plex-space/worktrees/fix'
+      ])
     })
 
     it('re-attaches without spawning when space is already open', () => {
@@ -51,6 +75,7 @@ describe('SpacePool', () => {
       const second = pool.open('space-1', panes(2, '/project', 'claude'))
       expect(spawner.spawned).toHaveLength(2) // no second spawn
       expect(second.terminalIds).toEqual(first.terminalIds)
+      expect(second.paneCwds).toEqual(first.paneCwds)
       expect(second.isNew).toBe(false)
     })
 
@@ -80,7 +105,9 @@ describe('SpacePool', () => {
         }
       ])
       expect(spawner.spawned[0].spec.cwd).toBe('/project')
-      expect(spawner.spawned[1].spec.cwd).toBe('/project/.plex-space/worktrees/fix')
+      expect(spawner.spawned[1].spec.cwd).toBe(
+        '/project/.plex-space/worktrees/fix'
+      )
     })
 
     it('independent spaces each get their own spawn calls', () => {
@@ -94,7 +121,10 @@ describe('SpacePool', () => {
 
   describe('close', () => {
     it('kills all terminals for the space', () => {
-      const { terminalIds } = pool.open('space-1', panes(4, '/project', 'claude'))
+      const { terminalIds } = pool.open(
+        'space-1',
+        panes(4, '/project', 'claude')
+      )
       pool.close('space-1')
       expect(spawner.killed.sort()).toEqual(terminalIds.sort())
     })
@@ -120,7 +150,9 @@ describe('SpacePool', () => {
         }
       ])
       const worktrees = pool.close('space-1')
-      expect(worktrees).toEqual([{ branch: 'fix', path: '/project/.plex-space/worktrees/fix' }])
+      expect(worktrees).toEqual([
+        { branch: 'fix', path: '/project/.plex-space/worktrees/fix' }
+      ])
     })
 
     it('returns an empty list for an unknown space and does not throw', () => {

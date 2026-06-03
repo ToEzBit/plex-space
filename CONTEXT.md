@@ -26,7 +26,7 @@ _Avoid_: cell, slot, window, tab
 
 **Pane header**:
 The always-visible, compact floating island centered near the top edge of a Pane. It provides actions scoped to that Pane while remaining distinct from the Terminal it contains.
-_Avoid_: terminal header, toolbar, title bar
+_Avoid_: terminal header, toolbar, title bar, header notch, notch
 
 **Terminal**:
 The terminal emulator instance running inside a single Pane. This is where an Agent actually runs.

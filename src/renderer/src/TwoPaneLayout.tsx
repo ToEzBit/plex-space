@@ -6,12 +6,18 @@ import { useDividerDrag } from './useDividerDrag'
 
 interface Props {
   terminalIds: [string, string]
+  paneCwds: [string, string]
   visible: boolean
 }
 
-export function TwoPaneLayout({ terminalIds, visible }: Props): React.JSX.Element {
+export function TwoPaneLayout({
+  terminalIds,
+  paneCwds,
+  visible
+}: Props): React.JSX.Element {
   const [proportion, setProportion] = useState(0.5)
-  const { isDragging, containerCursor, refitTrigger, startDrag, bumpRefit } = useDividerDrag()
+  const { isDragging, containerCursor, refitTrigger, startDrag, bumpRefit } =
+    useDividerDrag()
   const containerRef = useRef<HTMLDivElement>(null)
 
   const handleDividerMouseDown = startDrag('v', (ev) => {
@@ -27,6 +33,7 @@ export function TwoPaneLayout({ terminalIds, visible }: Props): React.JSX.Elemen
   }
 
   const [leftId, rightId] = terminalIds
+  const [leftCwd, rightCwd] = paneCwds
 
   return (
     <div
@@ -45,6 +52,7 @@ export function TwoPaneLayout({ terminalIds, visible }: Props): React.JSX.Elemen
       <Pane
         index={1}
         terminalId={leftId}
+        cwd={leftCwd}
         visible={visible}
         isDragging={isDragging}
         refitTrigger={refitTrigger}
@@ -61,6 +69,7 @@ export function TwoPaneLayout({ terminalIds, visible }: Props): React.JSX.Elemen
       <Pane
         index={2}
         terminalId={rightId}
+        cwd={rightCwd}
         visible={visible}
         isDragging={isDragging}
         refitTrigger={refitTrigger}

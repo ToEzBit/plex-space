@@ -1,6 +1,11 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { Layout } from '../shared/layout'
-import type { PaneWorktree, ManagedWorktree, KeptWorktree } from '../shared/worktree'
+import type { OpenGridResult } from '../shared/spaceRuntime'
+import type {
+  PaneWorktree,
+  ManagedWorktree,
+  KeptWorktree
+} from '../shared/worktree'
 
 interface TerminalAPI {
   input: (terminalId: string, data: string) => void
@@ -13,6 +18,7 @@ interface TerminalAPI {
 interface SpaceAPI {
   selectDirectory: () => Promise<{ path: string; name: string } | null>
   isInstalled: (command: string) => Promise<boolean>
+  openInVSCode: (cwd: string) => Promise<void>
   listSpaces: () => Promise<Space[]>
   createSpace: (opts: { name?: string; directory: string }) => Promise<Space>
   removeSpace: (id: string) => Promise<void>
@@ -29,7 +35,7 @@ interface SpaceAPI {
     layout: Layout,
     agentCommand: string,
     paneChoices: PaneWorktree[]
-  ) => Promise<{ terminalIds: string[]; isNew: boolean }>
+  ) => Promise<OpenGridResult>
   closeGrid: (spaceId: string, cwd: string) => Promise<KeptWorktree[]>
 }
 

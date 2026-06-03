@@ -13,6 +13,7 @@ import { useDividerDrag } from './useDividerDrag'
 interface Props {
   cols: 2 | 3
   terminalIds: string[]
+  paneCwds: string[]
   visible: boolean
 }
 
@@ -20,11 +21,17 @@ function equalSplits(cols: number): number[] {
   return Array.from({ length: cols - 1 }, (_, i) => (i + 1) / cols)
 }
 
-export function GridLayout({ cols, terminalIds, visible }: Props): React.JSX.Element {
+export function GridLayout({
+  cols,
+  terminalIds,
+  paneCwds,
+  visible
+}: Props): React.JSX.Element {
   const init = equalSplits(cols)
   const [rowProportion, setRowProportion] = useState(0.5)
   const [rowSplits, setRowSplits] = useState<number[][]>([init, [...init]])
-  const { isDragging, containerCursor, refitTrigger, startDrag, bumpRefit } = useDividerDrag()
+  const { isDragging, containerCursor, refitTrigger, startDrag, bumpRefit } =
+    useDividerDrag()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const rowRefs = useRef<(HTMLDivElement | null)[]>([null, null])
@@ -33,16 +40,27 @@ export function GridLayout({ cols, terminalIds, visible }: Props): React.JSX.Ele
     const container = containerRef.current
     if (!container) return
     const rect = container.getBoundingClientRect()
-    setRowProportion(mouseToProportion(ev.clientY, rect.top, rect.height, MIN_PANE_HEIGHT_PX))
+    setRowProportion(
+      mouseToProportion(ev.clientY, rect.top, rect.height, MIN_PANE_HEIGHT_PX)
+    )
   })
 
-  const handleVDividerMouseDown = (rowIndex: number, dividerIndex: number): ((e: React.MouseEvent) => void) =>
+  const handleVDividerMouseDown = (
+    rowIndex: number,
+    dividerIndex: number
+  ): ((e: React.MouseEvent) => void) =>
     startDrag('v', (ev) => {
       const rowEl = rowRefs.current[rowIndex]
       if (!rowEl) return
       const rect = rowEl.getBoundingClientRect()
       setRowSplits((prev) => {
-        const newPos = mouseXToSplit(ev.clientX, rect.left, rect.width, dividerIndex, prev[rowIndex])
+        const newPos = mouseXToSplit(
+          ev.clientX,
+          rect.left,
+          rect.width,
+          dividerIndex,
+          prev[rowIndex]
+        )
         return updateRowSplit(prev, rowIndex, dividerIndex, newPos)
       })
     })
@@ -53,7 +71,9 @@ export function GridLayout({ cols, terminalIds, visible }: Props): React.JSX.Ele
   }
 
   const handleVDividerDoubleClick = (rowIndex: number): void => {
-    setRowSplits((prev) => prev.map((row, r) => (r === rowIndex ? equalSplits(cols) : row)))
+    setRowSplits((prev) =>
+      prev.map((row, r) => (r === rowIndex ? equalSplits(cols) : row))
+    )
     bumpRefit()
   }
 
@@ -93,6 +113,7 @@ export function GridLayout({ cols, terminalIds, visible }: Props): React.JSX.Ele
                   <Pane
                     index={paneOffset + colIndex + 1}
                     terminalId={terminalIds[paneOffset + colIndex]}
+                    cwd={paneCwds[paneOffset + colIndex]}
                     visible={visible}
                     isDragging={isDragging}
                     refitTrigger={refitTrigger}
