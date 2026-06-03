@@ -6,6 +6,10 @@ A macOS desktop app for running AI CLI agents (Claude Code, Codex CLI) in config
 
 Keep a list of named **Spaces**, open one to launch a grid of Terminals all running the same agent inside that Space's directory. Multiple Spaces can run concurrently in the background.
 
+<p align="center">
+  <img src="assets/screenshot-6-pane.png" width="900" alt="Plex Space showing a six-pane layout, each pane running a Claude Code agent in its own git worktree, with the Command center sidebar on the left" />
+</p>
+
 ## Download & install
 
 Plex Space ships as a **universal macOS app** — it runs natively on both Apple Silicon and Intel Macs.
