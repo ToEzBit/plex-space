@@ -6,17 +6,20 @@ A macOS desktop app for running AI CLI agents (Claude Code, Codex CLI) in config
 
 Keep a list of named **Spaces**, open one to launch a grid of Terminals all running the same agent inside that Space's directory. Multiple Spaces can run concurrently in the background.
 
-## Download
+## Download & install
 
-Grab the latest `.dmg` from the **[Releases page](https://github.com/ToEzBit/plex-space/releases/latest)**, open it, and drag **Plex Space** into Applications.
+Plex Space ships as a **universal macOS app** — it runs natively on both Apple Silicon and Intel Macs.
 
-> **First launch on macOS.** The app is not yet code-signed or notarized, so Gatekeeper will refuse to open it ("Plex Space is damaged" or "can't be opened"). Clear the quarantine flag once, then open normally:
->
-> ```bash
-> xattr -cr "/Applications/Plex Space.app"
-> ```
->
-> Alternatively: **right-click the app → Open → Open**, or allow it under **System Settings → Privacy & Security → Open Anyway**.
+1. **Download** the latest `.dmg` from the **[Releases page](https://github.com/ToEzBit/plex-space/releases/latest)**.
+2. **Open the `.dmg`** and drag **Plex Space** into your **Applications** folder.
+3. **First launch — clear Gatekeeper.** This build is not yet code-signed or notarized, so macOS blocks it on first open ("Plex Space is damaged" or "can't be opened"). Clear the quarantine flag once in Terminal, then open the app normally:
+   ```bash
+   xattr -cr "/Applications/Plex Space.app"
+   ```
+   _Alternatively:_ **right-click the app → Open → Open**, or allow it under **System Settings → Privacy & Security → Open Anyway**.
+4. **Install an agent.** Make sure Claude Code (`claude`) and/or Codex CLI (`codex`) is installed and on your `PATH` — Plex Space launches whichever you pick when opening a Space.
+
+> **Platform support:** macOS only (Apple Silicon or Intel). Windows/Linux are intentionally out of scope — see [ADR-0005](docs/adr/0005-mvp-scope-boundary.md). The app relies on macOS-specific behavior (POSIX shell, APFS clonefile), so supporting them is a port, not just a new build target.
 
 Prefer to build it yourself? See [Getting started](#getting-started).
 
@@ -80,7 +83,7 @@ npm run dev
 # Type-check + bundle into out/ (no installer)
 npm run build
 
-# Package a distributable .dmg into dist/
+# Package a universal (Apple Silicon + Intel) .dmg into dist/
 npm run dist:mac
 ```
 
@@ -136,7 +139,7 @@ Click **Launch Space** and the grid spins up — every pane gets its own termina
 ```bash
 npm run dev          # Start dev server with hot-reload
 npm run build        # Type-check + bundle renderer/main into out/
-npm run dist:mac     # Build + package a distributable .dmg into dist/
+npm run dist:mac     # Build + package a universal (arm64 + x64) .dmg into dist/
 npm run test         # Run unit tests (Vitest)
 npm run typecheck    # Type-check main and renderer
 npm run lint         # ESLint
