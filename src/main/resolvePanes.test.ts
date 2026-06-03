@@ -4,8 +4,13 @@ import type { PaneWorktree } from '../shared/worktree'
 
 function ops(over: Partial<WorktreeOps> = {}): WorktreeOps {
   return {
-    createWorktree: vi.fn(async (_cwd, branch) => `/repo/.plex-space/worktrees/${branch}`),
-    resumeWorktree: vi.fn(async (_cwd, branch) => `/repo/.plex-space/worktrees/${branch}`),
+    createWorktree: vi.fn(
+      async (_cwd, branch) => `/repo/.plex-space/worktrees/${branch}`
+    ),
+    resumeWorktree: vi.fn(
+      async (_cwd, branch) => `/repo/.plex-space/worktrees/${branch}`
+    ),
+    currentBranch: vi.fn(async () => 'main'),
     ...over
   }
 }
@@ -15,18 +20,22 @@ describe('resolvePanes', () => {
     const choices: PaneWorktree[] = [{ kind: 'none' }]
     const [pane] = await resolvePanes('/repo', 1, 'claude', choices, ops())
     expect(pane.spec).toEqual({ cwd: '/repo', agentCommand: 'claude' })
+    expect(pane.branch).toBe('main')
     expect(pane.worktree).toBeUndefined()
   })
 
   it('a new Pane launches the Agent in the created worktree and is tracked', async () => {
     const choices: PaneWorktree[] = [{ kind: 'new', branch: 'fix-auth' }]
-    const [pane] = await resolvePanes('/repo', 1, 'claude', choices, ops())
+    const o = ops()
+    const [pane] = await resolvePanes('/repo', 1, 'claude', choices, o)
     expect(pane.spec.cwd).toBe('/repo/.plex-space/worktrees/fix-auth')
     expect(pane.spec.agentCommand).toBe('claude')
+    expect(pane.branch).toBe('fix-auth')
     expect(pane.worktree).toEqual({
       branch: 'fix-auth',
       path: '/repo/.plex-space/worktrees/fix-auth'
     })
+    expect(o.currentBranch).not.toHaveBeenCalled()
   })
 
   it('a resume Pane reattaches via resumeWorktree (not createWorktree)', async () => {
@@ -51,16 +60,23 @@ describe('resolvePanes', () => {
     expect(pane.spec.agentCommand).toBeNull() // the Agent is NOT auto-launched
     expect(pane.spec.notice).toContain('fix-auth')
     expect(pane.spec.notice).toContain('already exists')
+    expect(pane.branch).toBe('main')
     expect(pane.worktree).toBeUndefined() // nothing to clean up on close
   })
 
   it('mixes Pane kinds and defaults missing choices to none', async () => {
-    const choices: PaneWorktree[] = [{ kind: 'new', branch: 'a' }, { kind: 'none' }]
+    const choices: PaneWorktree[] = [
+      { kind: 'new', branch: 'a' },
+      { kind: 'none' }
+    ]
     // layout 3 but only 2 choices given → the 3rd defaults to a Space-dir Pane
     const panes = await resolvePanes('/repo', 3, 'claude', choices, ops())
     expect(panes).toHaveLength(3)
     expect(panes[0].worktree?.branch).toBe('a')
+    expect(panes[0].branch).toBe('a')
     expect(panes[1].worktree).toBeUndefined()
+    expect(panes[1].branch).toBe('main')
     expect(panes[2].spec).toEqual({ cwd: '/repo', agentCommand: 'claude' })
+    expect(panes[2].branch).toBe('main')
   })
 })

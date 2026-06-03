@@ -176,6 +176,7 @@ button:active:not(:disabled) {
   left: 50%;
   z-index: 2;
   height: 24px;
+  max-width: calc(100% - 16px);
   display: flex;
   align-items: center;
   gap: 7px;
@@ -192,8 +193,16 @@ button:active:not(:disabled) {
 .pane-header:hover {
   background: var(--elevated);
 }
+.pane-header-label {
+  min-width: 0;
+  max-width: min(220px, calc(100vw - 160px));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .pane-header-actions {
   display: flex;
+  flex-shrink: 0;
   gap: 3px;
 }
 .pane-header-actions button {

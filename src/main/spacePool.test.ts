@@ -70,12 +70,31 @@ describe('SpacePool', () => {
       ])
     })
 
+    it('returns each Pane launch-time branch', () => {
+      const { paneBranches } = pool.open('space-1', [
+        { spec: { cwd: '/project', agentCommand: 'claude' }, branch: 'main' },
+        {
+          spec: {
+            cwd: '/project/.plex-space/worktrees/fix',
+            agentCommand: 'claude'
+          },
+          branch: 'fix',
+          worktree: {
+            branch: 'fix',
+            path: '/project/.plex-space/worktrees/fix'
+          }
+        }
+      ])
+      expect(paneBranches).toEqual(['main', 'fix'])
+    })
+
     it('re-attaches without spawning when space is already open', () => {
       const first = pool.open('space-1', panes(2, '/project', 'claude'))
       const second = pool.open('space-1', panes(2, '/project', 'claude'))
       expect(spawner.spawned).toHaveLength(2) // no second spawn
       expect(second.terminalIds).toEqual(first.terminalIds)
       expect(second.paneCwds).toEqual(first.paneCwds)
+      expect(second.paneBranches).toEqual(first.paneBranches)
       expect(second.isNew).toBe(false)
     })
 

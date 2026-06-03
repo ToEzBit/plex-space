@@ -7,12 +7,14 @@ import { useDividerDrag } from './useDividerDrag'
 interface Props {
   terminalIds: [string, string, string]
   paneCwds: [string, string, string]
+  paneBranches: [string | null, string | null, string | null]
   visible: boolean
 }
 
 export function ThreePaneLayout({
   terminalIds,
   paneCwds,
+  paneBranches,
   visible
 }: Props): React.JSX.Element {
   const [rowProportion, setRowProportion] = useState(0.5)
@@ -51,6 +53,7 @@ export function ThreePaneLayout({
 
   const [topLeftId, topRightId, bottomId] = terminalIds
   const [topLeftCwd, topRightCwd, bottomCwd] = paneCwds
+  const [topLeftBranch, topRightBranch, bottomBranch] = paneBranches
 
   return (
     <div
@@ -80,6 +83,7 @@ export function ThreePaneLayout({
           index={1}
           terminalId={topLeftId}
           cwd={topLeftCwd}
+          branch={topLeftBranch}
           visible={visible}
           isDragging={isDragging}
           refitTrigger={refitTrigger}
@@ -95,6 +99,7 @@ export function ThreePaneLayout({
           index={2}
           terminalId={topRightId}
           cwd={topRightCwd}
+          branch={topRightBranch}
           visible={visible}
           isDragging={isDragging}
           refitTrigger={refitTrigger}
@@ -113,6 +118,7 @@ export function ThreePaneLayout({
         index={3}
         terminalId={bottomId}
         cwd={bottomCwd}
+        branch={bottomBranch}
         visible={visible}
         isDragging={isDragging}
         refitTrigger={refitTrigger}

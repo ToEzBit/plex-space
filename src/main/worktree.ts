@@ -32,6 +32,19 @@ export async function isGitRepo(cwd: string, run: GitRunner = realGit): Promise<
   }
 }
 
+export async function currentBranch(
+  cwd: string,
+  run: GitRunner = realGit
+): Promise<string | null> {
+  try {
+    const { stdout } = await run(['branch', '--show-current'], cwd)
+    const branch = stdout.trim()
+    return branch.length > 0 ? branch : null
+  } catch {
+    return null
+  }
+}
+
 async function repoRoot(cwd: string, run: GitRunner): Promise<string> {
   const { stdout } = await run(['rev-parse', '--show-toplevel'], cwd)
   return stdout.trim()

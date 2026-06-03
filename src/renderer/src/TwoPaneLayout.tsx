@@ -7,12 +7,14 @@ import { useDividerDrag } from './useDividerDrag'
 interface Props {
   terminalIds: [string, string]
   paneCwds: [string, string]
+  paneBranches: [string | null, string | null]
   visible: boolean
 }
 
 export function TwoPaneLayout({
   terminalIds,
   paneCwds,
+  paneBranches,
   visible
 }: Props): React.JSX.Element {
   const [proportion, setProportion] = useState(0.5)
@@ -34,6 +36,7 @@ export function TwoPaneLayout({
 
   const [leftId, rightId] = terminalIds
   const [leftCwd, rightCwd] = paneCwds
+  const [leftBranch, rightBranch] = paneBranches
 
   return (
     <div
@@ -53,6 +56,7 @@ export function TwoPaneLayout({
         index={1}
         terminalId={leftId}
         cwd={leftCwd}
+        branch={leftBranch}
         visible={visible}
         isDragging={isDragging}
         refitTrigger={refitTrigger}
@@ -70,6 +74,7 @@ export function TwoPaneLayout({
         index={2}
         terminalId={rightId}
         cwd={rightCwd}
+        branch={rightBranch}
         visible={visible}
         isDragging={isDragging}
         refitTrigger={refitTrigger}

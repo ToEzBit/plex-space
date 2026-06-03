@@ -15,6 +15,7 @@ interface OpenSpaceEntry {
   config: SpaceConfig
   terminalIds: string[]
   paneCwds: string[]
+  paneBranches: Array<string | null>
 }
 
 const paneAreaStyle = {
@@ -35,6 +36,7 @@ function renderSpaceLayout(
   config: SpaceConfig,
   terminalIds: string[],
   paneCwds: string[],
+  paneBranches: Array<string | null>,
   visible: boolean
 ): React.JSX.Element {
   if (config.layout === 2) {
@@ -42,6 +44,7 @@ function renderSpaceLayout(
       <TwoPaneLayout
         terminalIds={[terminalIds[0], terminalIds[1]]}
         paneCwds={[paneCwds[0], paneCwds[1]]}
+        paneBranches={[paneBranches[0] ?? null, paneBranches[1] ?? null]}
         visible={visible}
       />
     )
@@ -52,6 +55,11 @@ function renderSpaceLayout(
       <ThreePaneLayout
         terminalIds={[terminalIds[0], terminalIds[1], terminalIds[2]]}
         paneCwds={[paneCwds[0], paneCwds[1], paneCwds[2]]}
+        paneBranches={[
+          paneBranches[0] ?? null,
+          paneBranches[1] ?? null,
+          paneBranches[2] ?? null
+        ]}
         visible={visible}
       />
     )
@@ -63,6 +71,7 @@ function renderSpaceLayout(
         cols={config.layout === 4 ? 2 : 3}
         terminalIds={terminalIds}
         paneCwds={paneCwds}
+        paneBranches={paneBranches}
         visible={visible}
       />
     )
@@ -87,7 +96,11 @@ function renderSpaceLayout(
               span && span > 1 ? { gridColumn: `span ${span}` } : undefined
             }
           >
-            <PaneHeader index={i + 1} cwd={paneCwds[i]} />
+            <PaneHeader
+              index={i + 1}
+              cwd={paneCwds[i]}
+              branch={paneBranches[i] ?? null}
+            />
             <div className="pane-terminal">
               <PaneTerminal terminalId={terminalId} visible={visible} />
             </div>
@@ -137,16 +150,17 @@ function App(): React.JSX.Element {
     const lu: LastUsed = { layout: config.layout, agent: config.agentCommand }
     await window.spaceAPI.setLastUsed(lu)
     setLastUsedState(lu)
-    const { terminalIds, paneCwds } = await window.spaceAPI.openGrid(
-      spaceId,
-      config.cwd,
-      config.layout,
-      config.agentCommand,
-      config.paneChoices
-    )
+    const { terminalIds, paneCwds, paneBranches } =
+      await window.spaceAPI.openGrid(
+        spaceId,
+        config.cwd,
+        config.layout,
+        config.agentCommand,
+        config.paneChoices
+      )
     setOpenSpaces((prev) => ({
       ...prev,
-      [spaceId]: { config, terminalIds, paneCwds }
+      [spaceId]: { config, terminalIds, paneCwds, paneBranches }
     }))
     setActiveSpaceId(spaceId)
     setView('idle')
@@ -241,7 +255,7 @@ function App(): React.JSX.Element {
       >
         {/* Terminal grids — all kept in DOM, show/hide via display */}
         {Object.entries(openSpaces).map(
-          ([spaceId, { config, terminalIds, paneCwds }]) => {
+          ([spaceId, { config, terminalIds, paneCwds, paneBranches }]) => {
             const isActive = spaceId === activeSpaceId
             return (
               <div
@@ -252,7 +266,13 @@ function App(): React.JSX.Element {
                   flexDirection: 'column'
                 }}
               >
-                {renderSpaceLayout(config, terminalIds, paneCwds, isActive)}
+                {renderSpaceLayout(
+                  config,
+                  terminalIds,
+                  paneCwds,
+                  paneBranches,
+                  isActive
+                )}
               </div>
             )
           }

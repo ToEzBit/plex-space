@@ -6,6 +6,7 @@ interface Props {
   index: number
   terminalId: string
   cwd: string
+  branch: string | null
   visible: boolean
   isDragging: boolean
   refitTrigger: number
@@ -18,6 +19,7 @@ export function Pane({
   index,
   terminalId,
   cwd,
+  branch,
   visible,
   isDragging,
   refitTrigger,
@@ -26,7 +28,7 @@ export function Pane({
   return (
     <div style={{ flex, minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
       <div className="pane">
-        <PaneHeader index={index} cwd={cwd} />
+        <PaneHeader index={index} cwd={cwd} branch={branch} />
         <div className="pane-terminal">
           <PaneTerminal
             terminalId={terminalId}

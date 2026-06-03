@@ -1,14 +1,23 @@
 import type { PaneWorktree } from '../shared/worktree'
 import type { PaneLaunch } from './spacePool'
-import { createWorktree as realCreate, resumeWorktree as realResume } from './worktree'
+import {
+  createWorktree as realCreate,
+  resumeWorktree as realResume,
+  currentBranch as realCurrentBranch
+} from './worktree'
 
 /** The worktree operations resolvePanes depends on — injectable so the seam can be tested. */
 export interface WorktreeOps {
   createWorktree: (cwd: string, branch: string) => Promise<string>
   resumeWorktree: (cwd: string, branch: string) => Promise<string>
+  currentBranch: (cwd: string) => Promise<string | null>
 }
 
-const realOps: WorktreeOps = { createWorktree: realCreate, resumeWorktree: realResume }
+const realOps: WorktreeOps = {
+  createWorktree: realCreate,
+  resumeWorktree: realResume,
+  currentBranch: realCurrentBranch
+}
 
 /**
  * Turns the wizard's per-Pane choices into launch specs, creating/resuming worktrees as needed.
@@ -25,10 +34,16 @@ export async function resolvePanes(
   ops: WorktreeOps = realOps
 ): Promise<PaneLaunch[]> {
   const panes: PaneLaunch[] = []
+  let baseBranch: string | null | undefined
+  async function getBaseBranch(): Promise<string | null> {
+    if (baseBranch === undefined) baseBranch = await ops.currentBranch(cwd)
+    return baseBranch
+  }
+
   for (let i = 0; i < layout; i++) {
     const choice = paneChoices[i] ?? { kind: 'none' }
     if (choice.kind === 'none') {
-      panes.push({ spec: { cwd, agentCommand } })
+      panes.push({ spec: { cwd, agentCommand }, branch: await getBaseBranch() })
       continue
     }
     try {
@@ -36,10 +51,15 @@ export async function resolvePanes(
         choice.kind === 'new'
           ? await ops.createWorktree(cwd, choice.branch)
           : await ops.resumeWorktree(cwd, choice.branch)
-      panes.push({ spec: { cwd: path, agentCommand }, worktree: { branch: choice.branch, path } })
+      panes.push({
+        spec: { cwd: path, agentCommand },
+        branch: choice.branch,
+        worktree: { branch: choice.branch, path }
+      })
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
       panes.push({
+        branch: await getBaseBranch(),
         spec: {
           cwd,
           agentCommand: null,

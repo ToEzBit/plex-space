@@ -18,6 +18,8 @@ export interface WorktreeRef {
 /** One Pane's launch: how to spawn it, and the worktree (if any) it is bound to. */
 export interface PaneLaunch {
   spec: TerminalSpec
+  /** Launch-time branch for the Pane cwd; null/undefined when unavailable. */
+  branch?: string | null
   worktree?: WorktreeRef
 }
 
@@ -29,6 +31,7 @@ export interface TerminalSpawner {
 interface OpenSpaceEntry {
   terminalIds: string[]
   paneCwds: string[]
+  paneBranches: Array<string | null>
   worktrees: WorktreeRef[]
 }
 
@@ -43,20 +46,22 @@ export class SpacePool {
       return {
         terminalIds: existing.terminalIds,
         paneCwds: existing.paneCwds,
+        paneBranches: existing.paneBranches,
         isNew: false
       }
     }
 
     const terminalIds = panes.map((_, i) => `${spaceId}:${i}`)
     const paneCwds = panes.map((pane) => pane.spec.cwd)
+    const paneBranches = panes.map((pane) => pane.branch ?? null)
     panes.forEach((pane, i) => this.spawner.spawn(terminalIds[i], pane.spec))
 
     const worktrees = panes
       .map((pane) => pane.worktree)
       .filter((wt): wt is WorktreeRef => wt !== undefined)
 
-    this.pool.set(spaceId, { terminalIds, paneCwds, worktrees })
-    return { terminalIds, paneCwds, isNew: true }
+    this.pool.set(spaceId, { terminalIds, paneCwds, paneBranches, worktrees })
+    return { terminalIds, paneCwds, paneBranches, isNew: true }
   }
 
   /** Kills the Space's Terminals and returns its managed worktrees so the caller can clean them up. */

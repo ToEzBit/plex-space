@@ -17,9 +17,10 @@ function ExpandIcon(): React.JSX.Element {
 interface Props {
   index: number
   cwd: string
+  branch: string | null
 }
 
-function PaneHeader({ index, cwd }: Props): React.JSX.Element {
+function PaneHeader({ index, cwd, branch }: Props): React.JSX.Element {
   async function handleOpenInVSCode(): Promise<void> {
     try {
       await window.spaceAPI.openInVSCode(cwd)
@@ -30,9 +31,16 @@ function PaneHeader({ index, cwd }: Props): React.JSX.Element {
     }
   }
 
+  const label = branch ?? `Pane ${index}`
+
   return (
     <div className="pane-header">
-      <span>Pane {index}</span>
+      <span
+        className="pane-header-label"
+        title={branch ? `Branch: ${branch}` : `Pane ${index}`}
+      >
+        {label}
+      </span>
       <div className="pane-header-actions">
         <button
           type="button"

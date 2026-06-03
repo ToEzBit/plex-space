@@ -14,6 +14,7 @@ interface Props {
   cols: 2 | 3
   terminalIds: string[]
   paneCwds: string[]
+  paneBranches: Array<string | null>
   visible: boolean
 }
 
@@ -25,6 +26,7 @@ export function GridLayout({
   cols,
   terminalIds,
   paneCwds,
+  paneBranches,
   visible
 }: Props): React.JSX.Element {
   const init = equalSplits(cols)
@@ -114,6 +116,7 @@ export function GridLayout({
                     index={paneOffset + colIndex + 1}
                     terminalId={terminalIds[paneOffset + colIndex]}
                     cwd={paneCwds[paneOffset + colIndex]}
+                    branch={paneBranches[paneOffset + colIndex] ?? null}
                     visible={visible}
                     isDragging={isDragging}
                     refitTrigger={refitTrigger}
