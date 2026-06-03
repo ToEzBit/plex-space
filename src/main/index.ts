@@ -25,6 +25,9 @@ import { isInstalled } from './agentAvailability'
 import { SpaceStore, JsonFileBackend, type Space, type LastUsed } from './spaceStore'
 import { SpacePool } from './spacePool'
 import { TerminalRegistry } from './terminalRegistry'
+import { worktreeContext, cleanupWorktree } from './worktree'
+import { resolvePanes } from './resolvePanes'
+import type { PaneWorktree, ManagedWorktree, KeptWorktree } from '../shared/worktree'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -75,14 +78,13 @@ app.whenReady().then(async () => {
   })
 
   ipcMain.handle('space:list', (): Space[] => store.list())
-  ipcMain.handle('space:create', (_, opts: { name?: string; directory: string }): Space =>
-    store.create(opts)
+  ipcMain.handle(
+    'space:create',
+    (_, opts: { name?: string; directory: string }): Space => store.create(opts)
   )
   ipcMain.handle('space:remove', (_, id: string): void => store.remove(id))
   ipcMain.handle('space:getLastUsed', (): LastUsed | null => store.getLastUsed())
-  ipcMain.handle('space:setLastUsed', (_, lastUsed: LastUsed): void =>
-    store.setLastUsed(lastUsed)
-  )
+  ipcMain.handle('space:setLastUsed', (_, lastUsed: LastUsed): void => store.setLastUsed(lastUsed))
 
   ipcMain.handle('system:which', async (_, command: string): Promise<boolean> => {
     return isInstalled(command)
@@ -91,7 +93,9 @@ app.whenReady().then(async () => {
   ipcMain.handle(
     'dialog:selectDirectory',
     async (): Promise<{ path: string; name: string } | null> => {
-      const result = await dialog.showOpenDialog({ properties: ['openDirectory'] })
+      const result = await dialog.showOpenDialog({
+        properties: ['openDirectory']
+      })
       if (result.canceled || result.filePaths.length === 0) return null
       const filePath = result.filePaths[0]
       const name = basename(filePath)
@@ -100,21 +104,63 @@ app.whenReady().then(async () => {
   )
 
   ipcMain.handle(
+    'space:worktreeContext',
+    async (
+      _,
+      cwd: string
+    ): Promise<{
+      isRepo: boolean
+      managed: ManagedWorktree[]
+      branches: string[]
+    }> => {
+      const ctx = await worktreeContext(cwd)
+      const openBranches = spacePool.openBranches()
+      return {
+        isRepo: ctx.isRepo,
+        managed: ctx.managed.map((m) => ({
+          ...m,
+          inUse: openBranches.has(m.branch)
+        })),
+        branches: ctx.branches
+      }
+    }
+  )
+
+  ipcMain.handle(
     'space:openGrid',
-    (
+    async (
       _,
       spaceId: string,
       cwd: string,
       layout: number,
-      agentCommand: string
-    ): { terminalIds: string[]; isNew: boolean } => {
-      return spacePool.open(spaceId, cwd, layout, agentCommand)
+      agentCommand: string,
+      paneChoices: PaneWorktree[]
+    ): Promise<{ terminalIds: string[]; isNew: boolean }> => {
+      // Already open → reattach to the existing Terminals; do no git work.
+      if (spacePool.isOpen(spaceId)) return spacePool.open(spaceId, [])
+
+      const panes = await resolvePanes(cwd, layout, agentCommand, paneChoices)
+      return spacePool.open(spaceId, panes)
     }
   )
 
-  ipcMain.handle('space:closeGrid', (_, spaceId: string): void => {
-    spacePool.close(spaceId)
-  })
+  ipcMain.handle(
+    'space:closeGrid',
+    async (_, spaceId: string, cwd: string): Promise<KeptWorktree[]> => {
+      const worktrees = spacePool.close(spaceId)
+      const kept: KeptWorktree[] = []
+      for (const wt of worktrees) {
+        try {
+          const result = await cleanupWorktree(cwd, wt)
+          if (result) kept.push(result)
+        } catch {
+          // Cleanup failed → keep it rather than lose track of the user's branch.
+          kept.push({ branch: wt.branch, path: wt.path, reason: 'dirty' })
+        }
+      }
+      return kept
+    }
+  )
 
   ipcMain.on('terminal:input', (_, terminalId: string, data: string) => {
     registry.input(terminalId, data)

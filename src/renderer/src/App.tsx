@@ -24,7 +24,11 @@ const paneAreaStyle = {
   padding: '4px'
 }
 
-const wizardOverlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, zIndex: 100 }
+const wizardOverlayStyle: React.CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  zIndex: 100
+}
 
 function App(): React.JSX.Element {
   const [view, setView] = useState<View>('idle')
@@ -61,7 +65,8 @@ function App(): React.JSX.Element {
       spaceId,
       config.cwd,
       config.layout,
-      config.agentCommand
+      config.agentCommand,
+      config.paneChoices
     )
     setOpenSpaces((prev) => ({ ...prev, [spaceId]: { config, terminalIds } }))
     setActiveSpaceId(spaceId)
@@ -69,7 +74,10 @@ function App(): React.JSX.Element {
   }
 
   async function handleNewSpaceLaunch(config: SpaceConfig): Promise<void> {
-    const space = await window.spaceAPI.createSpace({ name: config.name, directory: config.cwd })
+    const space = await window.spaceAPI.createSpace({
+      name: config.name,
+      directory: config.cwd
+    })
     setSpaces((prev) => [...prev, space])
     await launchSpace(space.id, config)
   }
@@ -89,13 +97,21 @@ function App(): React.JSX.Element {
   }
 
   async function handleCloseSpace(spaceId: string): Promise<void> {
-    await window.spaceAPI.closeGrid(spaceId)
+    const cwd = openSpaces[spaceId]?.config.cwd ?? ''
+    const kept = await window.spaceAPI.closeGrid(spaceId, cwd)
     setOpenSpaces((prev) => {
       const next = { ...prev }
       delete next[spaceId]
       return next
     })
     setActiveSpaceId((prev) => (prev === spaceId ? null : prev))
+    if (kept.length > 0) {
+      const lines = kept.map((k) => `•  ${k.branch}  —  ${k.path}`).join('\n')
+      window.alert(
+        `Kept ${kept.length} worktree${kept.length > 1 ? 's' : ''} with uncommitted changes ` +
+          `(clean ones were removed):\n\n${lines}`
+      )
+    }
   }
 
   async function handleRemoveSpace(id: string): Promise<void> {
@@ -111,7 +127,14 @@ function App(): React.JSX.Element {
   const activeEntry = activeSpaceId ? openSpaces[activeSpaceId] : null
 
   return (
-    <div style={{ display: 'flex', width: '100vw', height: '100vh', position: 'relative' }}>
+    <div
+      style={{
+        display: 'flex',
+        width: '100vw',
+        height: '100vh',
+        position: 'relative'
+      }}
+    >
       <Sidebar
         spaces={spaces}
         openSpaceIds={openSpaceIds}
@@ -150,10 +173,7 @@ function App(): React.JSX.Element {
               }}
             >
               {config.layout === 2 ? (
-                <TwoPaneLayout
-                  terminalIds={[terminalIds[0], terminalIds[1]]}
-                  visible={isActive}
-                />
+                <TwoPaneLayout terminalIds={[terminalIds[0], terminalIds[1]]} visible={isActive} />
               ) : config.layout === 3 ? (
                 <ThreePaneLayout
                   terminalIds={[terminalIds[0], terminalIds[1], terminalIds[2]]}

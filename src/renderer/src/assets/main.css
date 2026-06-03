@@ -962,6 +962,114 @@ button:active:not(:disabled) {
   font-style: normal;
   white-space: nowrap;
 }
+.wizard-worktree-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.wizard-worktree-pane {
+  padding: 10px 11px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+.wizard-worktree-pane[data-on='true'] {
+  border-color: var(--accent);
+}
+.wizard-worktree-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wizard-worktree-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.wizard-worktree-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--elevated);
+  border-radius: 6px;
+}
+.wizard-worktree-toggle button {
+  padding: 4px 10px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+}
+.wizard-worktree-toggle button[data-selected='true'] {
+  color: var(--text);
+  background: var(--accent);
+}
+.wizard-worktree-config {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px;
+}
+.wizard-worktree-branch {
+  flex: 1;
+  min-width: 140px;
+  padding: 6px 9px;
+  font-size: 11px;
+  font-family: var(--mono, monospace);
+  color: var(--text);
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+}
+.wizard-worktree-tag {
+  padding: 3px 6px;
+  font-size: 9px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+}
+.wizard-worktree-resume {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+.wizard-worktree-resume small {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.wizard-worktree-resume button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px;
+  font-size: 10px;
+  font-family: var(--mono, monospace);
+  color: var(--text-secondary);
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.wizard-worktree-resume button[data-selected='true'] {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.wizard-worktree-resume button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.wizard-worktree-resume button em {
+  font-style: normal;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
 .wizard-footer {
   display: flex;
   justify-content: space-between;

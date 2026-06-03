@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import type { Layout } from '../shared/layout'
+import type { PaneWorktree, ManagedWorktree, KeptWorktree } from '../shared/worktree'
 
 const terminalAPI = {
   input: (terminalId: string, data: string): void =>
@@ -34,14 +35,23 @@ const spaceAPI = {
     ipcRenderer.invoke('space:getLastUsed'),
   setLastUsed: (lastUsed: { layout: Layout; agent: string }): Promise<void> =>
     ipcRenderer.invoke('space:setLastUsed', lastUsed),
+  worktreeContext: (
+    cwd: string
+  ): Promise<{
+    isRepo: boolean
+    managed: ManagedWorktree[]
+    branches: string[]
+  }> => ipcRenderer.invoke('space:worktreeContext', cwd),
   openGrid: (
     spaceId: string,
     cwd: string,
     layout: Layout,
-    agentCommand: string
+    agentCommand: string,
+    paneChoices: PaneWorktree[]
   ): Promise<{ terminalIds: string[]; isNew: boolean }> =>
-    ipcRenderer.invoke('space:openGrid', spaceId, cwd, layout, agentCommand),
-  closeGrid: (spaceId: string): Promise<void> => ipcRenderer.invoke('space:closeGrid', spaceId)
+    ipcRenderer.invoke('space:openGrid', spaceId, cwd, layout, agentCommand, paneChoices),
+  closeGrid: (spaceId: string, cwd: string): Promise<KeptWorktree[]> =>
+    ipcRenderer.invoke('space:closeGrid', spaceId, cwd)
 }
 
 try {

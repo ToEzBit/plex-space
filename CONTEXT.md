@@ -40,6 +40,10 @@ _Avoid_: console, tty
 An AI CLI tool that runs inside a Terminal, e.g. Claude Code, Codex CLI.
 _Avoid_: tool, CLI, bot, model, assistant
 
+**Worktree**:
+An isolated git working tree on its own branch, attached to a single Pane. When a Pane uses a Worktree, its Terminal runs the Agent in that separate directory and branch — so that Pane's work stays off the Space's current branch. Worktree use is a per-Pane choice made when the Space is opened; Panes without one run directly in the Space's directory, and the two kinds can be mixed within one Layout. Only available when the Space's directory is a git repository.
+_Avoid_: branch, fork, clone, copy, sandbox
+
 ## Relationships
 
 - A **Space** saves only its name and one working directory.
@@ -48,6 +52,7 @@ _Avoid_: tool, CLI, bot, model, assistant
 - A **Layout** holds N **Panes** (N ∈ {1, 2, 3, 4, 6}).
 - A **Pane** has one always-visible **Pane header**.
 - A **Pane** runs one **Terminal**.
+- A **Pane** may run in its own **Worktree**; otherwise its Terminal runs in the **Space**'s directory. Worktree use is a per-Pane, per-open choice (with its branch name) and is never saved with the Space.
 - A **Terminal** runs one **Agent**.
 - The **Agent** applies to every **Pane** in the Space — every Terminal runs the same kind of Agent.
 - An open **Space** keeps its **Terminals** running in the background even after the user focuses elsewhere in the **Command center**; multiple Spaces can be open concurrently.

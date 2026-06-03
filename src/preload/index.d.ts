@@ -1,5 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { Layout } from '../shared/layout'
+import type { PaneWorktree, ManagedWorktree, KeptWorktree } from '../shared/worktree'
 
 interface TerminalAPI {
   input: (terminalId: string, data: string) => void
@@ -17,13 +18,19 @@ interface SpaceAPI {
   removeSpace: (id: string) => Promise<void>
   getLastUsed: () => Promise<LastUsed | null>
   setLastUsed: (lastUsed: LastUsed) => Promise<void>
+  worktreeContext: (cwd: string) => Promise<{
+    isRepo: boolean
+    managed: ManagedWorktree[]
+    branches: string[]
+  }>
   openGrid: (
     spaceId: string,
     cwd: string,
     layout: Layout,
-    agentCommand: string
+    agentCommand: string,
+    paneChoices: PaneWorktree[]
   ) => Promise<{ terminalIds: string[]; isNew: boolean }>
-  closeGrid: (spaceId: string) => Promise<void>
+  closeGrid: (spaceId: string, cwd: string) => Promise<KeptWorktree[]>
 }
 
 declare global {

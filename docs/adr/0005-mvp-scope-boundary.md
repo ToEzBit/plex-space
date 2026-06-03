@@ -4,7 +4,7 @@ The first MVP is the smallest coherent version of: keep a list of named Spaces, 
 
 These are **deliberately out of MVP** (recorded so they are not mistaken for oversights, and not re-litigated as "missing features"):
 
-- **Per-Pane Agents** — one Agent applies to all Panes in a Space.
+- **Per-Pane Agents** — one Agent applies to all Panes in a Space. *(Still out. Note: per-Pane **working directories** are now in via ADR-0009 — a Pane may run in its own git Worktree — but the Agent stays uniform across Panes.)*
 - **Config-driven / auto-detected Agents** — the Agent list is hardcoded (Claude Code → `claude`, Codex CLI → `codex`).
 - **Agent flags / model selection** — Agents launch with the bare command, no arguments.
 - ~~**Resizable Panes** — the Layout grid is fixed and equal-sized.~~ *Lifted: Panes can now be resized by dragging the boundary between adjacent Panes — see ADR-0008. (Adding/closing/re-splitting Panes mid-session is still out, per the next line.)*

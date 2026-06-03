@@ -1,5 +1,5 @@
 import { buildLaunchPlan } from './launchPlan'
-import type { TerminalSpawner } from './spacePool'
+import type { TerminalSpawner, TerminalSpec } from './spacePool'
 
 /** The slice of a pty the registry actually drives. node-pty's IPty satisfies it structurally. */
 export interface Pty {
@@ -29,7 +29,7 @@ export interface TerminalRegistryDeps {
 
 interface Entry {
   pty: Pty
-  sendTimer: ReturnType<typeof setTimeout>
+  sendTimer?: ReturnType<typeof setTimeout>
 }
 
 export class TerminalRegistry implements TerminalSpawner {
@@ -37,11 +37,11 @@ export class TerminalRegistry implements TerminalSpawner {
 
   constructor(private deps: TerminalRegistryDeps) {}
 
-  spawn(terminalId: string, cwd: string, agentCommand: string): void {
-    const plan = buildLaunchPlan(this.deps.shell, agentCommand)
+  spawn(terminalId: string, spec: TerminalSpec): void {
+    const plan = buildLaunchPlan(this.deps.shell, spec.agentCommand)
     const pty = this.deps.spawnPty(plan.spawnFile, plan.spawnArgs, {
       name: 'xterm-256color',
-      cwd,
+      cwd: spec.cwd,
       env: this.deps.env,
       cols: 80,
       rows: 24
@@ -49,9 +49,14 @@ export class TerminalRegistry implements TerminalSpawner {
 
     pty.onData((data) => this.deps.onData(terminalId, data))
 
-    const sendTimer = setTimeout(() => {
-      pty.write(plan.sendSequence)
-    }, plan.sendDelayMs)
+    // A notice (e.g. a worktree-creation error) goes to the DISPLAY sink, not pty.write —
+    // writing it to stdin would make the shell try to execute it as a command.
+    if (spec.notice) this.deps.onData(terminalId, spec.notice)
+
+    const sendTimer =
+      plan.sendSequence !== null
+        ? setTimeout(() => pty.write(plan.sendSequence as string), plan.sendDelayMs)
+        : undefined
 
     this.terminals.set(terminalId, { pty, sendTimer })
   }
